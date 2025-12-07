@@ -47,6 +47,35 @@ func main() {
 	}
 	ValidParentheses(input)
 
+	fmt.Println("################")
+	fmt.Println(`Increment("101") ->`, Increment("0101")) // => 6
+	fmt.Println(Increment("111"))                         // (4 + 2 + 1) = 7 => 8
+	fmt.Println(Increment("1000"))                        // 8. => 9
+	fmt.Println(Increment("0110111"))                     // 55 => 56
+
+	/*
+		// Невеликі демонстраційні виклики (для наочного запуску `go run .`)
+		fmt.Println("FibonacciIterative(10):", FibonacciIterative(10)) // очікуємо 55
+		fmt.Println("FibonacciRecursive(10):", FibonacciRecursive(10)) // очікуємо 55
+
+		result, _ := IsPrime(2)
+		fmt.Println("IsPrime(2):", result) // true
+		result, _ = IsPrime(15)
+		fmt.Println("IsPrime(15):", result) // false
+		result, _ = IsPrime(29)
+		fmt.Println("IsPrime(29):", result) // true
+
+		fmt.Println("IsBinaryPalindrome(7):", IsBinaryPalindrome(7)) // true (111)
+		fmt.Println("IsBinaryPalindrome(6):", IsBinaryPalindrome(6)) // false (110)
+
+		fmt.Println(`ValidParentheses("[]{}()"):`, ValidParentheses("[]{}()")) // true
+		fmt.Println(`ValidParentheses("[{]}"):`, ValidParentheses("[{]}"))     // false
+
+		fmt.Println(`Increment("101") ->`, Increment("0101")) // => 6
+		fmt.Println(Increment("111"))     // (4 + 2 + 1) = 7 => 8
+		fmt.Println(Increment("1000"))    // 8. => 9
+		fmt.Println(Increment("0110111")) // 55 => 56
+	*/
 }
 
 func FibonacciIterative(n int) int {
@@ -104,7 +133,7 @@ func IsPrime(n int) (bool, bool) {
 		return false, false
 	}
 	if n == 2 {
-		return false, false
+		return true, false
 	}
 	if n%2 == 0 {
 		return true, false
@@ -193,4 +222,33 @@ func ValidParentheses(s string) bool {
 	}
 
 	return true
+}
+
+func Increment(num string) int {
+	// TODO: Імплементуйте функцію яка на вхід отримує строку яка складається лише з символів 0 та 1
+	// Тобто строка містить певне число у бінарному вигляді
+	// Потрібно повернути число на один більше
+	// Додайте валідацію вхідної строки, якщо вона містить недопустимі символи, повертайте 0
+
+	// 0101 (4 + 0 + 1)     5+1 =  6
+	// 0111 (4 + 2 + 1)     7+1 =  8
+	// 1000  (8 + 0 + 0 +0) 8+1 =  9
+
+	result := 0
+	multiplier := 1 //  2^0 = 1
+
+	for i := len(num) - 1; i >= 0; i-- {
+		if num[i] != '1' && num[i] != '0' {
+			fmt.Println("Incorrect inout", num[i])
+			return 0
+		}
+		if num[i] == '1' {
+			result += multiplier
+		}
+
+		// shift (1 -> 2 -> 4 -> 8 -> 16)
+		multiplier *= 2
+	}
+
+	return result + 1
 }
