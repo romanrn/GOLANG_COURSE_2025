@@ -18,7 +18,7 @@ func main() {
 	_, _ = fmt.Println("FibonacciRecursive: ", FibonacciRecursive(n))
 
 	fmt.Println("################")
-	result, _ := IsPrime(n)
+	result := IsPrime(n)
 
 	fmt.Printf("Is Provided number n = %d Prime ? \n", n)
 
@@ -45,8 +45,10 @@ func main() {
 
 		return
 	}
-	ValidParentheses(input)
-
+	isParentheses := ValidParentheses(input)
+	//fmt.Printf("Is Provided number n = %d Prime ? \n", n)
+	fmt.Printf("Is %s ValidParentheses? \n", input)
+	fmt.Printf("Answ: %t\n", isParentheses)
 	fmt.Println("################")
 	fmt.Println(`Increment("101") ->`, Increment("0101")) // => 6
 	fmt.Println(Increment("111"))                         // (4 + 2 + 1) = 7 => 8
@@ -125,28 +127,28 @@ func FibonacciRecursive(n int) int {
 
 }
 
-func IsPrime(n int) (bool, bool) {
+func IsPrime(n int) bool {
 	// TODO: імплементуйте перевірку на просте число.
 	// Підказка: n<=1 -> false; 2 -> true; парні >2 -> false;
 	// Далі перевіряйте дільники до sqrt(n).
 	if n <= 1 {
-		return false, false
+		return false
 	}
 	if n == 2 {
-		return true, false
+		return true
 	}
 	if n%2 == 0 {
-		return true, false
+		return true
 	}
 	// step +2
 	// i*i equals math.Sqrt
 	for i := 3; i*i <= n; i += 2 {
 		if n%i == 0 {
-			return false, false
+			return false
 		}
 	}
 
-	return true, false
+	return true
 }
 
 func IsBinaryPalindrome(n int) bool {
@@ -188,6 +190,11 @@ func ValidParentheses(s string) bool {
 	// [ = 91
 	// { = 123
 	// } = 125
+
+	if len(s) == 0 {
+		fmt.Println("Empty input string")
+		return false
+	}
 
 	stack := []rune{}
 
