@@ -138,7 +138,7 @@ func IsPrime(n int) bool {
 		return true
 	}
 	if n%2 == 0 {
-		return true
+		return false
 	}
 	// step +2
 	// i*i equals math.Sqrt
