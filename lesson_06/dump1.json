@@ -1,0 +1,43 @@
+{
+  "collections": {
+    "users": {
+      "config": {
+        "PrimaryKey": "key"
+      },
+      "documents": [
+        {
+          "Fields": {
+            "age": {
+              "Type": "number",
+              "Value": 30
+            },
+            "key": {
+              "Type": "string",
+              "Value": "user1"
+            },
+            "name": {
+              "Type": "string",
+              "Value": "John Doe"
+            }
+          }
+        },
+        {
+          "Fields": {
+            "age": {
+              "Type": "number",
+              "Value": 25
+            },
+            "key": {
+              "Type": "string",
+              "Value": "user2"
+            },
+            "name": {
+              "Type": "string",
+              "Value": "Jane Smith"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
