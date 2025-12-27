@@ -18,7 +18,7 @@ func main() {
 	// Create a new document store
 	store := documentstore.NewStore()
 	//fmt.Println("\n=== Create Users ===")
-	usersCollectionPtr, err := store.CreateCollection("users", &documentstore.CollectionConfig{
+	usersCollection, err := store.CreateCollection("users", &documentstore.CollectionConfig{
 		PrimaryKey: "key",
 	})
 	switch {
@@ -66,10 +66,16 @@ func main() {
 		},
 	}
 
-	usersCollectionPtr.Put(doc1)
-	usersCollectionPtr.Put(doc2)
+	if usersCollection.Put(doc1) != nil {
+		logger.Error("failed to put a doc", slog.Any("error", err))
+	}
+	if usersCollection.Put(doc2) != nil {
+		logger.Error("failed to put a doc", slog.Any("error", err))
+	}
 
-	store.DumpToFile("dump1.json")
+	if store.DumpToFile("dump1.json") != nil {
+		logger.Error("failed to dump to file", slog.Any("error", err))
+	}
 	store2, err := documentstore.NewStoreFromFile(("dump1.json"))
 	if err != nil {
 		log.Fatal(err)
@@ -79,6 +85,6 @@ func main() {
 
 	logger.Info(fmt.Sprintf("=== Total documents: === '%d' ", len(listDocs)))
 	for _, doc := range listDocs {
-		fmt.Printf("  - %s: %s\n", doc.Fields["key"].Value, doc.Fields["name"].Value)
+		logger.Info(fmt.Sprintf("%s: %s", doc.Fields["key"].Value, doc.Fields["name"].Value))
 	}
 }

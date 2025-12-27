@@ -139,7 +139,10 @@ func NewStoreFromDump(dump []byte) (*Store, error) {
 			return nil, fmt.Errorf("failed to create collection '%s': %w", name, err)
 		}
 		for _, doc := range collDump.Documents {
-			collection.Put(doc)
+			if collection.Put(doc) != nil {
+				pkgLogger.Error("failed to put document into collection from dump", slog.String("collection", name), slog.Any("document", doc))
+				return nil, fmt.Errorf("failed to put document into collection '%s' from dump", name)
+			}
 		}
 		pkgLogger.Info("loaded collection from dump", slog.String("name", name), slog.Int("documents", len(collDump.Documents)))
 	}

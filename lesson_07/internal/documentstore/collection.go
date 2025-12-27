@@ -9,7 +9,11 @@ import (
 
 var (
 	ErrKeyEmpty         = errors.New("[Collection] Error: key is empty")
+	ErrKeyMissing       = errors.New("[Collection] Error: key is mossing")
+	ErrValueEmpty       = errors.New("[Collection] Error: value is empty")
 	ErrDocumentNotFound = errors.New("document not found")
+	ErrEmptyDocument    = errors.New("Collection] Error: Provided document is empty")
+	ErrValueTypeInvalid = errors.New("[Collection] Error: Field  must be of type string")
 )
 
 type Collection struct {
@@ -36,35 +40,37 @@ func NewCollection(cfg *CollectionConfig) *Collection {
 	}
 }
 
-func (s *Collection) Put(doc Document) {
+func (s *Collection) Put(doc Document) error {
 	// Потрібно перевірити що документ містить поле `{cfg.PrimaryKey}` типу `string`
 	if doc.Fields == nil {
 		pkgLogger.Error("[Collection Put] Error: Document is empty")
-		return
+		return ErrEmptyDocument
 	}
 	pk := s.cfg.PrimaryKey
 	fieldKey, exist := doc.Fields[pk]
 	if !exist {
 		pkgLogger.Error("primary key field is missing", "field", pk)
-		return
+		return ErrKeyMissing
 	}
 	if fieldKey.Type != DocumentFieldTypeString {
 		pkgLogger.Error("[Collection Put] Error: Field  must be of type 'string", "field", pk)
-		return
+		return ErrValueTypeInvalid
 	}
 	keyValue, ok := fieldKey.Value.(string)
 	if !ok || strings.TrimSpace(keyValue) == "" {
 		pkgLogger.Error("[Collection] Error: value is not a non-empty string", "value", pk)
-		return
+		return ErrKeyEmpty
 	}
 	if strings.TrimSpace(keyValue) == "" {
 		pkgLogger.Error("[Collection] Error: value is empty", "value", pk)
-		return
+		return ErrValueEmpty
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.documents[keyValue] = &doc
 	pkgLogger.Info(fmt.Sprintf("[Collection] Document with %s='%s' added", pk, keyValue))
+
+	return nil
 }
 
 func (s *Collection) Get(key string) (*Document, error) {
@@ -93,13 +99,14 @@ func (s *Collection) Delete(key string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	_, ok := s.documents[key]
-	if ok {
-		delete(s.documents, key)
-		pkgLogger.Error(fmt.Sprintf("[Collection Delete] Document with key '%s' deleted successfully", key))
-	} else {
+
+	if !ok {
 		pkgLogger.Error(fmt.Sprintf("[Collection Delete] Document with key '%s' not found", key))
 		return ErrDocumentNotFound
 	}
+
+	delete(s.documents, key)
+	pkgLogger.Error(fmt.Sprintf("[Collection Delete] Document with key '%s' deleted successfully", key))
 
 	return nil
 }
