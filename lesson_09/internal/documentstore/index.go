@@ -108,22 +108,47 @@ func (idx *Index) RangeQuery(minValue *string, maxValue *string, desc bool) []st
 }
 
 func (idx *Index) getKeysToProcess(minValue *string, maxValue *string, desc bool) []string {
-	var result []string
-	if desc {
-		// Iterate backwards for descending order
-		for i := len(idx.sortedKeys) - 1; i >= 0; i-- {
-			if idx.isKeyInRange(idx.sortedKeys[i], minValue, maxValue) {
-				result = append(result, idx.sortedKeys[i])
-			}
-		}
-	} else {
-		// Iterate forwards for ascending order
-		for _, key := range idx.sortedKeys {
-			if idx.isKeyInRange(key, minValue, maxValue) {
-				result = append(result, key)
-			}
-		}
+	// Complexity O(log n + k))
+	keys := idx.sortedKeys
+	n := len(keys)
+
+	if n == 0 {
+		return nil
 	}
+
+	// Find start index: first element >= minValue
+	startIdx := 0
+	if minValue != nil {
+		startIdx = sort.Search(n, func(i int) bool {
+			return keys[i] >= *minValue
+		})
+	}
+
+	// Find end index: first element > maxValue
+	endIdx := n
+	if maxValue != nil {
+		endIdx = sort.Search(n, func(i int) bool {
+			return keys[i] > *maxValue
+		})
+	}
+
+	// Empty range
+	if startIdx >= endIdx {
+		return nil
+	}
+
+	// Asc order: return slice view
+	if !desc {
+		return keys[startIdx:endIdx]
+	}
+
+	// Des order: return reversed copy
+	size := endIdx - startIdx
+	result := make([]string, size)
+	for i, j := endIdx-1, 0; i >= startIdx; i, j = i-1, j+1 {
+		result[j] = keys[i]
+	}
+
 	return result
 }
 
