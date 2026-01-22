@@ -1,0 +1,75 @@
+{
+  "collections": {
+    "users": {
+      "config": {
+        "PrimaryKey": "id"
+      },
+      "documents": [
+        {
+          "Fields": {
+            "age": {
+              "Type": "string",
+              "Value": "25"
+            },
+            "id": {
+              "Type": "string",
+              "Value": "1"
+            },
+            "name": {
+              "Type": "string",
+              "Value": "Alice"
+            },
+            "status": {
+              "Type": "string",
+              "Value": "active"
+            }
+          }
+        },
+        {
+          "Fields": {
+            "age": {
+              "Type": "string",
+              "Value": "30"
+            },
+            "id": {
+              "Type": "string",
+              "Value": "2"
+            },
+            "name": {
+              "Type": "string",
+              "Value": "Bob"
+            },
+            "status": {
+              "Type": "string",
+              "Value": "inactive"
+            }
+          }
+        },
+        {
+          "Fields": {
+            "age": {
+              "Type": "string",
+              "Value": "35"
+            },
+            "id": {
+              "Type": "string",
+              "Value": "3"
+            },
+            "name": {
+              "Type": "string",
+              "Value": "Charlie"
+            },
+            "status": {
+              "Type": "string",
+              "Value": "active"
+            }
+          }
+        }
+      ],
+      "indexes": [
+        "status",
+        "age"
+      ]
+    }
+  }
+}
