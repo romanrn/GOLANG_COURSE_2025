@@ -1,0 +1,12 @@
+services:
+  mongo:
+    image: mongo:7.0
+    command: mongod --auth
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DATABASE_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${DATABASE_PASSWORD}
+      MONGO_INITDB_DATABASE: ${DATABASE_NAME}
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    env_file:
+      - .env
