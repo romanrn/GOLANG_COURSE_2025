@@ -1,0 +1,11 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    container_name: documentstore-server
+    env_file:
+      - .env
+
