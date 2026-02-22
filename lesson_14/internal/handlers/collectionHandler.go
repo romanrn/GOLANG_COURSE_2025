@@ -91,7 +91,7 @@ func (ch *CollectionHandler) handleListCollection(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(api.ListCollectionResponse{
+	return c.Status(fiber.StatusOK).JSON(api.ListCollectionResponse{
 		Ok:          true,
 		Message:     "Retrieve Collections successfully",
 		Collections: apiCollections,
