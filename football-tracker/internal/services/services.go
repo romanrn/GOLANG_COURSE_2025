@@ -1,16 +1,15 @@
 package services
 
 import (
-	"football-tracker/cmd/server/config"
-	"football-tracker/internal/clients"
+	repositories "football-tracker/internal/out/database"
 )
 
 type Services struct {
 	Match MatchService
 }
 
-func NewServices(cfg *config.ServerConfig, clients *clients.Clients) *Services {
+func NewServices(repos *repositories.Repositories) *Services {
 	return &Services{
-		Match: NewMatchService(),
+		Match: NewMatchService(repos.MatchRepo),
 	}
 }

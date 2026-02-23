@@ -5,7 +5,7 @@ go 1.25
 require (
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/gofiber/fiber/v2 v2.52.11
-	github.com/oklog/ulid/v2 v2.1.1
+	github.com/lib/pq v1.11.2
 	github.com/pkg/errors v0.9.1
 	go.opentelemetry.io/otel/trace v1.40.0
 )

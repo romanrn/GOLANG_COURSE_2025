@@ -96,7 +96,7 @@ func (s *Server) Run(ctx context.Context) {
 
 func (s *Server) RegisterRoutes(h *handlers.Handlers) {
 
-	s.app.Get("/health", h.Health.Check)
+	s.app.Get("/healthCheck", h.Health.Check)
 
 	api := s.app.Group("/api")
 

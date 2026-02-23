@@ -18,13 +18,3 @@ func NewHandlers(cfg *config.ServerConfig, svcs *services.Services, mdlwr *middl
 		Mdlwr:  mdlwr,
 	}
 }
-
-/*func (h *Handlers) RegisterRoutes(router fiber.Router) {
-	router.Get("/health", h.health.Health)
-
-	api := router.Group("/api")
-	api.Use(h.mdlwr.Trace.Handle)
-	api.Use(h.mdlwr.ErrorHandler.Handle)
-	api.Use(h.mdlwr.Logger.Handle)
-
-}*/

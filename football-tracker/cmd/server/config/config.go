@@ -16,13 +16,14 @@ type ServerConfig struct {
 	AppName         string        `env:"APP_NAME" envDefault:"Football Tracker v1.0"`
 	DbName          string        `env:"DATABASE_NAME" envDefault:"footballTracker"`
 	DbHost          string        `env:"DB_HOST" envDefault:"localhost"`
-	DbPort          string        `env:"DB_PORT" envDefault:"27017"`
-	DbUri           string        `env:"DB_URI" envDefault:"Football Tracker v1.0"`
-	DbUserName      string        `env:"DATABASE_USERNAME" envDefault:"root"`
-	DbPsw           string        `env:"DATABASE_PASSWORD" envDefault:"root"`
+	DbPort          string        `env:"DB_PORT" envDefault:"5432"`
+	DbUri           string        `env:"DB_URI" envDefault:""`
+	DbUserName      string        `env:"DATABASE_USERNAME" envDefault:"postgres"`
+	DbPsw           string        `env:"DATABASE_PASSWORD" envDefault:"postgres"`
 	MaxPoolSize     uint64        `env:"MAX_POOL_SIZE" envDefault:"100"`
 	MinPoolSize     uint64        `env:"MIN_POOL_SIZE" envDefault:"10"`
 	MaxConnIdleTime time.Duration `env:"MAX_CONN_IDLE_TIME" envDefault:"30s"`
+	MaxConnLifetime time.Duration `env:"MAX_CONN_LIFE_TIME" envDefault:"30m"`
 	LoggerLevel     string        `env:"LOGGER_LEVEL" envDefault:"info"`
 	Enviroment      string        `env:"APP_ENV" envDefault:"development"`
 }

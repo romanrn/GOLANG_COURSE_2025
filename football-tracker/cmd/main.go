@@ -8,6 +8,7 @@ import (
 	"football-tracker/cmd/server/logger"
 	"football-tracker/cmd/server/middlewares"
 	"football-tracker/internal/clients"
+	"football-tracker/internal/out/database"
 	"football-tracker/internal/services"
 	"log/slog"
 )
@@ -23,13 +24,23 @@ func main() {
 
 	logger.InitLogger(cfg)
 
-	clients, err := clients.NewClients(ctx, cfg)
+	clnts, err := clients.NewClients(ctx, cfg)
 	if err != nil {
 		logger.GetLogger().Fatal(ctx, err.Error())
 	}
 
+	// Ensure database cleanup on exit
+	defer func() {
+		if err := clnts.Db.Close(); err != nil {
+			logger.GetLogger().Error(ctx, "Failed to close database connection", slog.String("error", err.Error()))
+		} else {
+			logger.GetLogger().Info(ctx, "Database connection closed successfully")
+		}
+	}()
+
 	// mdlwrs := middlewares.NewMiddlewares(cfg, clnts, svcs)
-	srvs := services.NewServices(cfg, clients)
+	repos := repositories.NewRepositories(clnts.Db)
+	srvs := services.NewServices(repos)
 	mdlwrs := middlewares.NewMiddlewares(cfg)
 
 	hdlrs := handlers.NewHandlers(cfg, srvs, mdlwrs)
