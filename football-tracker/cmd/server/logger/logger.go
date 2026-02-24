@@ -3,6 +3,7 @@ package logger
 import (
 	"context"
 	"football-tracker/cmd/server/config"
+	"football-tracker/cmd/server/middlewares/trace"
 	"log/slog"
 	"os"
 )
@@ -19,7 +20,6 @@ type Logger struct {
 }
 
 func InitLogger(cfg *config.ServerConfig) {
-
 	h := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 		Level: convertToSlogLevel(cfg.LoggerLevel),
 	})
@@ -43,22 +43,38 @@ func convertToSlogLevel(level string) slog.Leveler {
 	return slog.LevelInfo
 }
 
-type CtxLoggerKey struct{}
+// enrichArgs automatically adds traceID and spanID from context
+func enrichArgs(ctx context.Context, args []any) []any {
+	enriched := make([]any, 0, len(args)+4)
+
+	// Add traceID and spanID if present in context using trace package keys
+	if traceID, ok := ctx.Value(trace.TraceIDKey).(string); ok && traceID != "" {
+		enriched = append(enriched, slog.String("trace_id", traceID))
+	}
+	if spanID, ok := ctx.Value(trace.SpanIDKey).(string); ok && spanID != "" {
+		enriched = append(enriched, slog.String("span_id", spanID))
+	}
+
+	// Add original arguments
+	enriched = append(enriched, args...)
+
+	return enriched
+}
 
 func (s *Logger) Info(ctx context.Context, msg string, args ...any) {
-	s.log.InfoContext(ctx, msg, args...)
+	s.log.InfoContext(ctx, msg, enrichArgs(ctx, args)...)
 }
 
 func (s *Logger) Error(ctx context.Context, msg string, args ...any) {
-	s.log.ErrorContext(ctx, msg, args...)
+	s.log.ErrorContext(ctx, msg, enrichArgs(ctx, args)...)
 }
 
 func (s *Logger) Warn(ctx context.Context, msg string, args ...any) {
-	s.log.WarnContext(ctx, msg, args...)
+	s.log.WarnContext(ctx, msg, enrichArgs(ctx, args)...)
 }
 
 func (s *Logger) Fatal(ctx context.Context, msg string, args ...any) {
-	s.log.ErrorContext(ctx, msg, args...)
+	s.log.ErrorContext(ctx, msg, enrichArgs(ctx, args)...)
 	os.Exit(1)
 }
 

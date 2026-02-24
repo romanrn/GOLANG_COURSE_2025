@@ -98,9 +98,12 @@ func (s *Server) RegisterRoutes(h *handlers.Handlers) {
 
 	s.app.Get("/healthCheck", h.Health.Check)
 
-	api := s.app.Group("/api")
+	api := s.app.Group("/api/v1")
 
 	api.Use(h.Mdlwr.Trace.Handle)
 	api.Use(h.Mdlwr.ErrorHandler.Handle)
 	api.Use(h.Mdlwr.Logger.Handle)
+
+	// Championships routes
+	api.Get("/championships", h.ChampionShips.GetAll)
 }

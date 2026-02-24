@@ -5,11 +5,13 @@ import (
 )
 
 type Services struct {
-	Match MatchService
+	Match        MatchService
+	Championship ChampionshipService
 }
 
 func NewServices(repos *repositories.Repositories) *Services {
 	return &Services{
-		Match: NewMatchService(repos.MatchRepo),
+		Match:        NewMatchService(repos.MatchRepo),
+		Championship: NewChampionshipService(repos.ChampionshipRepo),
 	}
 }

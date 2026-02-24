@@ -3,7 +3,6 @@ package logger
 import (
 	"football-tracker/cmd/server/config"
 	"football-tracker/cmd/server/logger"
-	"football-tracker/cmd/server/middlewares/trace"
 	"log/slog"
 
 	"github.com/gofiber/fiber/v2"
@@ -21,19 +20,11 @@ func NewMiddleware(cfg *config.ServerConfig) *Middleware {
 }
 
 func (m *Middleware) Handle(ctx *fiber.Ctx) error {
-
-	traceID := trace.GetTraceID(ctx)
-	spanID := trace.GetSpanID(ctx)
-
-	if traceID != "" {
-		WithLoggerAttrs(ctx,
-			slog.String("trace_id", traceID),
-			slog.String("span_id", spanID),
-		)
-	}
+	// Get user context with traceID/spanID added by trace middleware
+	userCtx := ctx.UserContext()
 
 	logger.GetLogger().Info(
-		ctx.Context(),
+		userCtx,
 		"request start",
 		getLoggerAttrs(ctx)...,
 	)
@@ -52,11 +43,11 @@ func (m *Middleware) Handle(ctx *fiber.Ctx) error {
 
 	switch {
 	case statusCode >= 500:
-		logger.GetLogger().Error(ctx.Context(), "request end", attrs...)
+		logger.GetLogger().Error(userCtx, "request end", attrs...)
 	case statusCode >= 400:
-		logger.GetLogger().Warn(ctx.Context(), "request end", attrs...)
+		logger.GetLogger().Warn(userCtx, "request end", attrs...)
 	default:
-		logger.GetLogger().Info(ctx.Context(), "request end", attrs...)
+		logger.GetLogger().Info(userCtx, "request end", attrs...)
 	}
 
 	return err

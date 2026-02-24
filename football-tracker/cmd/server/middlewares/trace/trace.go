@@ -1,17 +1,22 @@
 package trace
 
 import (
+	"context"
 	"football-tracker/cmd/server/config"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"go.opentelemetry.io/otel/trace"
 )
 
-type contextKey string
+// ContextKey is exported so logger can use the same keys
+type ContextKey string
 
 const (
-	traceIDKey contextKey = "trace_id"
-	spanIDKey  contextKey = "span_id"
+	// TraceIDKey is the context key for trace ID (exported for logger)
+	TraceIDKey ContextKey = "trace_id"
+	// SpanIDKey is the context key for span ID (exported for logger)
+	SpanIDKey ContextKey = "span_id"
 )
 
 type Middleware struct {
@@ -25,38 +30,34 @@ func NewMiddleware(cfg *config.ServerConfig) *Middleware {
 }
 
 func (m *Middleware) Handle(ctx *fiber.Ctx) error {
+	userCtx := ctx.UserContext()
+
 	// Get the current span context from the request context
-	spanCtx := trace.SpanContextFromContext(ctx.UserContext())
+	spanCtx := trace.SpanContextFromContext(userCtx)
+
+	var traceID, spanID string
 
 	// Extract trace ID and span ID if they exist
 	if spanCtx.IsValid() {
-		traceID := spanCtx.TraceID().String()
-		spanID := spanCtx.SpanID().String()
-
-		// Store trace ID and span ID in the Fiber context
-		ctx.Locals(traceIDKey, traceID)
-		ctx.Locals(spanIDKey, spanID)
-
-		// Also set them as response headers for debugging
-		ctx.Set("X-Trace-ID", traceID)
-		ctx.Set("X-Span-ID", spanID)
+		traceID = spanCtx.TraceID().String()
+		spanID = spanCtx.SpanID().String()
+	} else {
+		// Generate trace ID if not present (fallback)
+		traceID = uuid.New().String()
+		spanID = uuid.New().String()
 	}
+
+	// Store in Go context (for services/repositories)
+	userCtx = context.WithValue(userCtx, TraceIDKey, traceID)
+	userCtx = context.WithValue(userCtx, SpanIDKey, spanID)
+
+	// Update Fiber's user context with enriched version
+	ctx.SetUserContext(userCtx)
+
+	// Set response headers for debugging
+	ctx.Set("X-Trace-ID", traceID)
+	ctx.Set("X-Span-ID", spanID)
+
 	// Call next handler
 	return ctx.Next()
-}
-
-// GetTraceID extracts trace_id from Fiber context
-func GetTraceID(ctx *fiber.Ctx) string {
-	if traceID, ok := ctx.Locals(traceIDKey).(string); ok {
-		return traceID
-	}
-	return ""
-}
-
-// GetSpanID extracts span_id from Fiber context
-func GetSpanID(ctx *fiber.Ctx) string {
-	if spanID, ok := ctx.Locals(spanIDKey).(string); ok {
-		return spanID
-	}
-	return ""
 }

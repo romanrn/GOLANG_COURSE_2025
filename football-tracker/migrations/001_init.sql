@@ -113,13 +113,11 @@ CREATE TABLE IF NOT EXISTS matches (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     -- Constraints to ensure data consistency
-    CONSTRAINT check_extra_time_consistency CHECK (
-        (has_extra_time = FALSE) OR
-        (has_extra_time = TRUE AND home_score_extra IS NOT NULL AND away_score_extra IS NOT NULL)
-    ),
-    CONSTRAINT check_penalty_consistency CHECK (
-        (has_penalty = FALSE) OR
-        (has_penalty = TRUE AND home_score_penalty IS NOT NULL AND away_score_penalty IS NOT NULL)
+    CONSTRAINT check_scores_non_negative CHECK (
+        (home_score_regular IS NULL OR home_score_regular >= 0) AND
+        (away_score_regular IS NULL OR away_score_regular >= 0) AND
+        (home_score_total IS NULL OR home_score_total >= 0) AND
+        (away_score_total IS NULL OR away_score_total >= 0)
     ),
     CONSTRAINT check_total_score_consistency CHECK (
         (home_score_total IS NULL AND away_score_total IS NULL) OR
