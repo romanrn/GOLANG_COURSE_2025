@@ -3,10 +3,12 @@ package repositories
 import (
 	"context"
 	"football-tracker/internal/models"
+	"football-tracker/internal/models/dto"
 )
 
 type MatchRepository interface {
-	GetByID(ctx context.Context, id string) (string, error)
+	GetByChampionshipId(ctx context.Context, championshipId int) ([]dto.MatchDTO, error)
+	GetById(ctx context.Context, matchId int) (dto.MatchDTO, error)
 }
 
 type ChampionshipRepository interface {

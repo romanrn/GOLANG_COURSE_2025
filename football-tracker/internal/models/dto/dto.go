@@ -1,27 +1,27 @@
-package models
+package dto
 
-import "time"
+import "football-tracker/internal/models"
 
 // MatchWithDetails represents a match with all related information
 type MatchWithDetails struct {
-	Match
+	models.Match
 
 	// Related entities
-	Championship *Championship `json:"championship,omitempty"`
-	Group        *Group        `json:"group,omitempty"`
-	HomeTeam     *Team         `json:"home_team,omitempty"`
-	AwayTeam     *Team         `json:"away_team,omitempty"`
-	City         *City         `json:"city,omitempty"`
+	Championship *models.Championship `json:"championship,omitempty"`
+	Group        *models.Group        `json:"group,omitempty"`
+	HomeTeam     *models.Team         `json:"home_team,omitempty"`
+	AwayTeam     *models.Team         `json:"away_team,omitempty"`
+	City         *models.City         `json:"city,omitempty"`
 }
 
 // PredictionWithDetails represents a prediction with match and user details
 type PredictionWithDetails struct {
-	Prediction
+	models.Prediction
 
 	// Related entities
-	User   *UserResponse     `json:"user,omitempty"`
-	Match  *MatchWithDetails `json:"match,omitempty"`
-	Winner *Team             `json:"penalty_winner,omitempty"`
+	User   *models.UserResponse `json:"user,omitempty"`
+	Match  *MatchWithDetails    `json:"match,omitempty"`
+	Winner *models.Team         `json:"penalty_winner,omitempty"`
 }
 
 // LeaderboardEntry represents a user's position in the leaderboard
@@ -60,43 +60,24 @@ type TeamStanding struct {
 }
 
 // MatchResult represents a formatted match result for display
-type MatchResult struct {
-	MatchID   int       `json:"match_id"`
-	MatchDate time.Time `json:"match_date"`
-	HomeTeam  string    `json:"home_team"`
-	AwayTeam  string    `json:"away_team"`
-	HomeFlag  string    `json:"home_flag"`
-	AwayFlag  string    `json:"away_flag"`
-
-	// Scores
-	RegularScore string  `json:"regular_score"`         // e.g., "2-1"
-	TotalScore   *string `json:"total_score,omitempty"` // e.g., "3-2 (AET)"
-
-	// Match info
-	Status       string `json:"status"`
-	Stage        string `json:"stage"`
-	Venue        string `json:"venue"`
-	HasExtraTime bool   `json:"has_extra_time"`
-	HasPenalty   bool   `json:"has_penalty"`
-}
 
 // UserStats represents comprehensive user statistics
 type UserStats struct {
-	UserID              int                      `json:"user_id"`
-	Username            string                   `json:"username"`
-	GlobalRating        *UserRating              `json:"global_rating,omitempty"`
-	ChampionshipRatings []ChampionshipUserRating `json:"championship_ratings,omitempty"`
-	RecentPredictions   []PredictionWithDetails  `json:"recent_predictions,omitempty"`
+	UserID              int                             `json:"user_id"`
+	Username            string                          `json:"username"`
+	GlobalRating        *models.UserRating              `json:"global_rating,omitempty"`
+	ChampionshipRatings []models.ChampionshipUserRating `json:"championship_ratings,omitempty"`
+	RecentPredictions   []PredictionWithDetails         `json:"recent_predictions,omitempty"`
 }
 
 // ChampionshipDetails represents a championship with all related data
 type ChampionshipDetails struct {
-	Championship
+	models.Championship
 
-	HostCountries []HostCountry `json:"host_countries,omitempty"`
-	Cities        []City        `json:"cities,omitempty"`
-	Teams         []Team        `json:"teams,omitempty"`
-	Groups        []Group       `json:"groups,omitempty"`
-	MatchesCount  int           `json:"matches_count"`
-	TeamsCount    int           `json:"teams_count"`
+	HostCountries []models.HostCountry `json:"host_countries,omitempty"`
+	Cities        []models.City        `json:"cities,omitempty"`
+	Teams         []models.Team        `json:"teams,omitempty"`
+	Groups        []models.Group       `json:"groups,omitempty"`
+	MatchesCount  int                  `json:"matches_count"`
+	TeamsCount    int                  `json:"teams_count"`
 }

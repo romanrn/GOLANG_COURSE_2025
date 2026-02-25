@@ -19,7 +19,7 @@ COPY cmd ./cmd
 COPY internal ./internal
 
 # Build the server with optimizations
-RUN go build -ldflags="-w -s" -o server ./cmd
+RUN go build -ldflags="-w -s" -o server ./cmd/main.go
 
 # Runtime stage
 FROM alpine:latest

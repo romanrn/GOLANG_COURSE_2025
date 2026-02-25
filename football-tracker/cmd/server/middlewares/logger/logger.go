@@ -1,12 +1,12 @@
 package logger
 
 import (
+	"errors"
 	"football-tracker/cmd/server/config"
 	"football-tracker/cmd/server/logger"
 	"log/slog"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/pkg/errors"
 )
 
 type Middleware struct {

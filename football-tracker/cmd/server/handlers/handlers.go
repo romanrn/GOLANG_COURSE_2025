@@ -4,6 +4,7 @@ import (
 	"football-tracker/cmd/server/config"
 	"football-tracker/cmd/server/handlers/championships"
 	"football-tracker/cmd/server/handlers/health"
+	"football-tracker/cmd/server/handlers/matches"
 	"football-tracker/cmd/server/handlers/teams"
 	"football-tracker/cmd/server/middlewares"
 	"football-tracker/internal/services"
@@ -14,6 +15,7 @@ type Handlers struct {
 	Mdlwr         *middlewares.Middlewares
 	ChampionShips *championships.Handler
 	Teams         *teams.Handler
+	Matches       *matches.Handler
 }
 
 func NewHandlers(cfg *config.ServerConfig, svcs *services.Services, mdlwr *middlewares.Middlewares) *Handlers {
@@ -22,5 +24,6 @@ func NewHandlers(cfg *config.ServerConfig, svcs *services.Services, mdlwr *middl
 		Mdlwr:         mdlwr,
 		ChampionShips: championships.NewHandler(svcs.Championship),
 		Teams:         teams.NewHandler(svcs.Team),
+		Matches:       matches.NewHandler(svcs.Match),
 	}
 }
