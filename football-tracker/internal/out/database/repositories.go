@@ -7,11 +7,13 @@ import (
 type Repositories struct {
 	MatchRepo        MatchRepository
 	ChampionshipRepo ChampionshipRepository
+	TeamRepo         TeamRepository
 }
 
 func NewRepositories(dbClient *database.PostgresClient) *Repositories {
 	return &Repositories{
 		MatchRepo:        NewMatchRepository(dbClient),
 		ChampionshipRepo: NewChampionshipRepository(dbClient),
+		TeamRepo:         NewTeamRepository(dbClient),
 	}
 }

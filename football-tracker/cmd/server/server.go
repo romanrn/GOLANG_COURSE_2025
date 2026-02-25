@@ -106,4 +106,9 @@ func (s *Server) RegisterRoutes(h *handlers.Handlers) {
 
 	// Championships routes
 	api.Get("/championships", h.ChampionShips.GetAll)
+	api.Get("/championships/:id", h.ChampionShips.GetById)
+
+	// Teams routes
+	api.Get("/teams", h.Teams.GetByChampionshipId)
+	api.Get("/teams/:id", h.Teams.GetById)
 }

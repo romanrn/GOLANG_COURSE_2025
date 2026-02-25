@@ -18,7 +18,7 @@ func NewMatchService(repo repositories.MatchRepository) MatchService {
 	}
 }
 
-func (s *matchService) GetByID(ctx context.Context, id string) (string, error) {
+func (s *matchService) GetById(ctx context.Context, id string) (string, error) {
 	logger.GetLogger().Info(
 		ctx,
 		"Getting match by ID",

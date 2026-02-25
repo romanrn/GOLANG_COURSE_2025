@@ -94,3 +94,54 @@ func (r *championshipRepository) GetAll(ctx context.Context) ([]models.Champions
 
 	return championships, nil
 }
+
+func (r *championshipRepository) GetByChampionshipId(ctx context.Context, championshipId int) (models.Championship, error) {
+	logger.GetLogger().Info(
+		ctx,
+		"Getting championship by Id",
+		slog.String("component", "repository"),
+		slog.String("method", "GetByChampionshipId"),
+		slog.Int("championship_id", championshipId),
+	)
+
+	query := `
+		SELECT id, name, year, start_date, end_date, logo_url, created_at, updated_at
+		FROM championships
+		WHERE id = $1
+	`
+
+	var championship models.Championship
+	err := r.db.DB.QueryRowContext(ctx, query, championshipId).Scan(
+		&championship.ID,
+		&championship.Name,
+		&championship.Year,
+		&championship.StartDate,
+		&championship.EndDate,
+		&championship.LogoURL,
+		&championship.CreatedAt,
+		&championship.UpdatedAt,
+	)
+
+	if err != nil {
+		logger.GetLogger().Error(
+			ctx,
+			"Failed to get championship by ID",
+			slog.String("component", "repository"),
+			slog.String("method", "GetByChampionshipId"),
+			slog.Int("championship_id", championshipId),
+			slog.String("error", err.Error()),
+		)
+		return models.Championship{}, fmt.Errorf("failed to get championship by ID %d: %w", championshipId, err)
+	}
+
+	logger.GetLogger().Info(
+		ctx,
+		"Successfully retrieved championship by ID",
+		slog.String("component", "repository"),
+		slog.String("method", "GetByChampionshipId"),
+		slog.Int("championship_id", championshipId),
+		slog.String("championship_name", championship.Name),
+	)
+
+	return championship, nil
+}
