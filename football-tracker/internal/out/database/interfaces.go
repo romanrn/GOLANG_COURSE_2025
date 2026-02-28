@@ -20,3 +20,18 @@ type TeamRepository interface {
 	GetByChampionshipId(ctx context.Context, championshipId int) ([]models.Team, error)
 	GetById(ctx context.Context, teamId int) (models.Team, error)
 }
+
+type UserRepository interface {
+	Create(ctx context.Context, user *models.User) error
+	GetByUsername(ctx context.Context, username string) (*models.User, error)
+	GetByEmail(ctx context.Context, email string) (*models.User, error)
+	GetById(ctx context.Context, userId int) (*models.User, error)
+}
+
+type SessionRepository interface {
+	Create(ctx context.Context, session *models.Session) error
+	GetByToken(ctx context.Context, token string) (*models.Session, error)
+	DeleteByToken(ctx context.Context, token string) error
+	DeleteByUserId(ctx context.Context, userId int) error
+	DeleteExpired(ctx context.Context) error
+}

@@ -100,19 +100,48 @@ func (s *Server) RegisterRoutes(h *handlers.Handlers) {
 
 	api := s.app.Group("/api/v1")
 
+	// Apply global middlewares to all routes
 	api.Use(h.Mdlwr.Trace.Handle)
 	api.Use(h.Mdlwr.ErrorHandler.Handle)
 	api.Use(h.Mdlwr.Logger.Handle)
 
-	// Championships routes
-	api.Get("/championships", h.ChampionShips.GetAll)
-	api.Get("/championships/:id", h.ChampionShips.GetById)
+	// Auth routes (public endpoints - no authentication required)
+	auth := api.Group("/auth")
+	auth.Post("/register", h.Auth.Register)
+	auth.Post("/login", h.Auth.Login)
 
-	// Teams routes
-	api.Get("/teams", h.Teams.GetByChampionshipId)
-	api.Get("/teams/:id", h.Teams.GetById)
+	// Protected auth routes (require authentication)
+	authProtected := api.Group("/auth")
+	authProtected.Use(h.Mdlwr.Auth.Handle) // Apply Auth middleware
+	authProtected.Post("/logout", h.Auth.Logout)
 
-	// Matches routes
-	api.Get("/matches", h.Matches.GetByChampionshipId)
-	api.Get("/matches/:id", h.Matches.GetById)
+	// Public routes with optional authentication (logs user_id if authenticated)
+	public := api.Group("")
+	public.Use(h.Mdlwr.Auth.OptionalHandle) // Optional Auth: logs user_id if present
+
+	// Championships routes (public, but logs user_id if authenticated)
+	public.Get("/championships", h.ChampionShips.GetAll)
+	public.Get("/championships/:id", h.ChampionShips.GetById)
+
+	// Teams routes (public, but logs user_id if authenticated)
+	public.Get("/teams", h.Teams.GetByChampionshipId)
+	public.Get("/teams/:id", h.Teams.GetById)
+
+	// Matches routes (public, but logs user_id if authenticated)
+	public.Get("/matches", h.Matches.GetByChampionshipId)
+	public.Get("/matches/:id", h.Matches.GetById)
+
+	// Example: Protected routes requiring authentication
+	// protected := api.Group("")
+	// protected.Use(h.Mdlwr.Auth.Handle)
+	// protected.Get("/profile", h.User.GetProfile)
+	// protected.Put("/profile", h.User.UpdateProfile)
+
+	// Example: Admin-only routes
+	// admin := api.Group("/admin")
+	// admin.Use(h.Mdlwr.Auth.Handle)
+	// admin.Use(h.Mdlwr.Auth.RequireRole(models.UserRoleAdmin))
+	// admin.Post("/championships", h.ChampionShips.Create)
+	// admin.Put("/championships/:id", h.ChampionShips.Update)
+	// admin.Delete("/championships/:id", h.ChampionShips.Delete)
 }

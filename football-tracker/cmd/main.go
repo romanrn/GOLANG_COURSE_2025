@@ -40,8 +40,8 @@ func main() {
 
 	// mdlwrs := middlewares.NewMiddlewares(cfg, clnts, svcs)
 	repos := repositories.NewRepositories(clnts.Db)
-	srvs := services.NewServices(repos)
-	mdlwrs := middlewares.NewMiddlewares(cfg)
+	srvs := services.NewServices(repos, cfg)
+	mdlwrs := middlewares.NewMiddlewares(srvs, cfg)
 
 	hdlrs := handlers.NewHandlers(cfg, srvs, mdlwrs)
 

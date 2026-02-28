@@ -17,6 +17,8 @@ const (
 	TraceIDKey ContextKey = "trace_id"
 	// SpanIDKey is the context key for span ID (exported for logger)
 	SpanIDKey ContextKey = "span_id"
+	// UserIDKey is the context key for user ID (exported for auth middleware and logger)
+	UserIDKey ContextKey = "user_id"
 )
 
 type Middleware struct {

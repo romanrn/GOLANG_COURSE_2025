@@ -20,3 +20,10 @@ type TeamService interface {
 	GetByChampionshipId(ctx context.Context, championshipID int) ([]models.Team, error)
 	GetById(ctx context.Context, championshipID int) (models.Team, error)
 }
+
+type AuthService interface {
+	Register(ctx context.Context, req dto.RegisterRequest) (*dto.AuthResponse, error)
+	Login(ctx context.Context, req dto.LoginRequest) (*dto.AuthResponse, error)
+	Logout(ctx context.Context, userId int) error
+	ValidateSession(ctx context.Context, token string) (*models.User, error)
+}

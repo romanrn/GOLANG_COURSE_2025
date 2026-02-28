@@ -38,16 +38,19 @@ func (m *Middleware) Handle(ctx *fiber.Ctx) error {
 		WithLoggerAttrs(ctx, slog.String("resp_message", err.Error()))
 	}
 
+	// Get updated context after all middleware (includes user_id from Optional Auth)
+	updatedCtx := ctx.UserContext()
+
 	statusCode := ctx.Response().StatusCode()
 	attrs := append(getLoggerAttrs(ctx), slog.Int("status_code", statusCode))
 
 	switch {
 	case statusCode >= 500:
-		logger.GetLogger().Error(userCtx, "request end", attrs...)
+		logger.GetLogger().Error(updatedCtx, "request end", attrs...)
 	case statusCode >= 400:
-		logger.GetLogger().Warn(userCtx, "request end", attrs...)
+		logger.GetLogger().Warn(updatedCtx, "request end", attrs...)
 	default:
-		logger.GetLogger().Info(userCtx, "request end", attrs...)
+		logger.GetLogger().Info(updatedCtx, "request end", attrs...)
 	}
 
 	return err

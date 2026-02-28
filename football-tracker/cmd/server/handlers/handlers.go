@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"football-tracker/cmd/server/config"
+	"football-tracker/cmd/server/handlers/auth"
 	"football-tracker/cmd/server/handlers/championships"
 	"football-tracker/cmd/server/handlers/health"
 	"football-tracker/cmd/server/handlers/matches"
@@ -16,6 +17,7 @@ type Handlers struct {
 	ChampionShips *championships.Handler
 	Teams         *teams.Handler
 	Matches       *matches.Handler
+	Auth          *auth.Handler
 }
 
 func NewHandlers(cfg *config.ServerConfig, svcs *services.Services, mdlwr *middlewares.Middlewares) *Handlers {
@@ -25,5 +27,6 @@ func NewHandlers(cfg *config.ServerConfig, svcs *services.Services, mdlwr *middl
 		ChampionShips: championships.NewHandler(svcs.Championship),
 		Teams:         teams.NewHandler(svcs.Team),
 		Matches:       matches.NewHandler(svcs.Match),
+		Auth:          auth.NewHandler(svcs.Auth, cfg),
 	}
 }

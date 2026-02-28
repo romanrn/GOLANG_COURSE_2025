@@ -43,9 +43,9 @@ func convertToSlogLevel(level string) slog.Leveler {
 	return slog.LevelInfo
 }
 
-// enrichArgs automatically adds traceID and spanID from context
+// enrichArgs automatically adds traceID, spanID, and userID from context
 func enrichArgs(ctx context.Context, args []any) []any {
-	enriched := make([]any, 0, len(args)+4)
+	enriched := make([]any, 0, len(args)+6)
 
 	// Add traceID and spanID if present in context using trace package keys
 	if traceID, ok := ctx.Value(trace.TraceIDKey).(string); ok && traceID != "" {
@@ -55,10 +55,19 @@ func enrichArgs(ctx context.Context, args []any) []any {
 		enriched = append(enriched, slog.String("span_id", spanID))
 	}
 
+	// Add userID if present in context (from auth middleware)
+	if userID, ok := ctx.Value(trace.UserIDKey).(int); ok && userID > 0 {
+		enriched = append(enriched, slog.Int("user_id", userID))
+	}
+
 	// Add original arguments
 	enriched = append(enriched, args...)
 
 	return enriched
+}
+
+func (s *Logger) Debug(ctx context.Context, msg string, args ...any) {
+	s.log.DebugContext(ctx, msg, enrichArgs(ctx, args)...)
 }
 
 func (s *Logger) Info(ctx context.Context, msg string, args ...any) {

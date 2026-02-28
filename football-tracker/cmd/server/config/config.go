@@ -26,6 +26,11 @@ type ServerConfig struct {
 	MaxConnLifetime time.Duration `env:"MAX_CONN_LIFE_TIME" envDefault:"30m"`
 	LoggerLevel     string        `env:"LOGGER_LEVEL" envDefault:"info"`
 	Enviroment      string        `env:"APP_ENV" envDefault:"development"`
+
+	// Session Cookie Configuration
+	SessionTokenTTL     time.Duration `env:"SESSION_TOKEN_TTL" envDefault:"24h"`
+	SessionCookieSecure bool          `env:"SESSION_COOKIE_SECURE" envDefault:"false"`
+	SessionCookieDomain string        `env:"SESSION_COOKIE_DOMAIN" envDefault:""`
 }
 
 func NewConfigFromEnv() (*ServerConfig, error) {
