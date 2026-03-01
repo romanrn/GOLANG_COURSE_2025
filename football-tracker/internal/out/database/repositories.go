@@ -10,6 +10,7 @@ type Repositories struct {
 	TeamRepo         TeamRepository
 	UserRepo         UserRepository
 	SessionRepo      SessionRepository
+	PredictionRepo   PredictionRepository
 }
 
 func NewRepositories(dbClient *database.PostgresClient) *Repositories {
@@ -19,5 +20,6 @@ func NewRepositories(dbClient *database.PostgresClient) *Repositories {
 		TeamRepo:         NewTeamRepository(dbClient),
 		UserRepo:         NewUserRepository(dbClient),
 		SessionRepo:      NewSessionRepository(dbClient),
+		PredictionRepo:   NewPredictionRepository(dbClient.DB),
 	}
 }

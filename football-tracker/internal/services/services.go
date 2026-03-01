@@ -14,6 +14,7 @@ type Services struct {
 	Championship ChampionshipService
 	Team         TeamService
 	Auth         AuthService
+	Prediction   PredictionService
 	JobManager   *jobs.Manager
 }
 
@@ -47,6 +48,7 @@ func NewServices(repos *repositories.Repositories, cfg *config.ServerConfig) *Se
 		Championship: NewChampionshipService(repos.ChampionshipRepo),
 		Team:         NewTeamService(repos.TeamRepo),
 		Auth:         NewAuthService(repos.UserRepo, repos.SessionRepo, cfg.SessionTokenTTL),
+		Prediction:   NewPredictionService(repos.PredictionRepo, repos.MatchRepo),
 		JobManager:   jobManager,
 	}
 }

@@ -6,6 +6,7 @@ import (
 	"football-tracker/cmd/server/handlers/championships"
 	"football-tracker/cmd/server/handlers/health"
 	"football-tracker/cmd/server/handlers/matches"
+	"football-tracker/cmd/server/handlers/predictions"
 	"football-tracker/cmd/server/handlers/teams"
 	"football-tracker/cmd/server/middlewares"
 	"football-tracker/internal/services"
@@ -19,6 +20,7 @@ type Handlers struct {
 	Teams         *teams.Handler
 	Matches       *matches.Handler
 	Auth          *auth.Handler
+	Predictions   *predictions.Handler
 }
 
 func NewHandlers(cfg *config.ServerConfig, svcs *services.Services, mdlwr *middlewares.Middlewares, isShuttingDown *atomic.Bool) *Handlers {
@@ -29,5 +31,6 @@ func NewHandlers(cfg *config.ServerConfig, svcs *services.Services, mdlwr *middl
 		Teams:         teams.NewHandler(svcs.Team),
 		Matches:       matches.NewHandler(svcs.Match),
 		Auth:          auth.NewHandler(svcs.Auth, cfg),
+		Predictions:   predictions.NewHandler(svcs.Prediction),
 	}
 }

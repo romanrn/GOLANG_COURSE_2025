@@ -175,4 +175,11 @@ func (s *Server) RegisterRoutes(h *handlers.Handlers) {
 	// Matches routes (public, but logs user_id if authenticated)
 	public.Get("/matches", h.Matches.GetByChampionshipId)
 	public.Get("/matches/:id", h.Matches.GetById)
+
+	// Protected prediction routes (require authentication)
+	predictions := api.Group("/predictions")
+	predictions.Use(h.Mdlwr.Auth.Handle) // Require authentication
+
+	predictions.Post("", h.Predictions.CreatePrediction) // Create prediction
+	
 }

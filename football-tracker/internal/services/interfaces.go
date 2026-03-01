@@ -27,3 +27,16 @@ type AuthService interface {
 	Logout(ctx context.Context, userId int) error
 	ValidateSession(ctx context.Context, token string) (*models.User, error)
 }
+
+type PredictionService interface {
+	CreatePrediction(ctx context.Context, userID int, req *dto.CreatePredictionRequest) (*dto.PredictionResponse, error)
+	// TOOD
+	/*
+		GetPredictionByID(ctx context.Context, predictionID int) (*dto.PredictionResponse, error)
+		GetUserPredictions(ctx context.Context, userID int) (*dto.PredictionListResponse, error)
+		GetMatchPredictions(ctx context.Context, matchID int) (*dto.PredictionListResponse, error)
+		UpdatePrediction(ctx context.Context, userID, predictionID int, req *dto.UpdatePredictionRequest) (*dto.PredictionResponse, error)
+		DeletePrediction(ctx context.Context, userID, predictionID int) error
+		GetUserPredictionForMatch(ctx context.Context, userID, matchID int) (*dto.PredictionResponse, error)
+	*/
+}
