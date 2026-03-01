@@ -63,18 +63,17 @@ func main() {
 		}
 	}()
 
-	// mdlwrs := middlewares.NewMiddlewares(cfg, clnts, svcs)
 	repos := repositories.NewRepositories(clnts.Db)
 	srvs := services.NewServices(repos, cfg)
 	mdlwrs := middlewares.NewMiddlewares(srvs, cfg)
-
 	hdlrs := handlers.NewHandlers(cfg, srvs, mdlwrs)
 
-	// Create server
-	// srv := server.NewServer(config, logger, hdlrs)
+	// Start background jobs (from Services container)
+	srvs.JobManager.StartAll(ctx)
+	defer srvs.JobManager.StopAll(ctx)
+
+	// Create and run server
 	srv := server.NewServer(cfg)
 	srv.RegisterRoutes(hdlrs)
-
-	// Run server
 	srv.Run(ctx)
 }

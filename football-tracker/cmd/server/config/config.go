@@ -28,9 +28,15 @@ type ServerConfig struct {
 	Enviroment      string        `env:"APP_ENV" envDefault:"development"`
 
 	// Session Cookie Configuration
-	SessionTokenTTL     time.Duration `env:"SESSION_TOKEN_TTL" envDefault:"24h"`
-	SessionCookieSecure bool          `env:"SESSION_COOKIE_SECURE" envDefault:"false"`
-	SessionCookieDomain string        `env:"SESSION_COOKIE_DOMAIN" envDefault:""`
+	SessionTokenTTL        time.Duration `env:"SESSION_TOKEN_TTL" envDefault:"24h"`
+	SessionCookieSecure    bool          `env:"SESSION_COOKIE_SECURE" envDefault:"false"`
+	SessionCookieDomain    string        `env:"SESSION_COOKIE_DOMAIN" envDefault:""`
+	SessionCleanupInterval time.Duration `env:"SESSION_CLEANUP_INTERVAL" envDefault:"1h"`
+
+	// Background Jobs Configuration
+	JobsEnabled              bool `env:"JOBS_ENABLED" envDefault:"true"`
+	JobSessionCleanupEnabled bool `env:"JOB_SESSION_CLEANUP_ENABLED" envDefault:"true"`
+	// JobPredictionCleanupEnabled bool `env:"JOB_PREDICTION_CLEANUP_ENABLED" envDefault:"true"`
 
 	// OpenTelemetry Configuration
 	OtelEnabled     bool   `env:"OTEL_ENABLED" envDefault:"true"`
