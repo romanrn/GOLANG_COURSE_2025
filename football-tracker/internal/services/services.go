@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"football-tracker/cmd/server/config"
 	"football-tracker/cmd/server/logger"
 	"football-tracker/internal/jobs"
@@ -24,11 +25,11 @@ func NewServices(repos *repositories.Repositories, cfg *config.ServerConfig) *Se
 	if cfg.JobsEnabled {
 		if cfg.JobSessionCleanupEnabled {
 			jobManager.Register(jobs.NewSessionCleaner(repos.SessionRepo, cfg.SessionCleanupInterval))
-			logger.GetLogger().Info(nil, "Session cleanup job registered",
+			logger.GetLogger().Info(context.Background(), "Session cleanup job registered",
 				slog.String("component", "services"),
 				slog.Duration("interval", cfg.SessionCleanupInterval))
 		} else {
-			logger.GetLogger().Info(nil, "Session cleanup job disabled by configuration",
+			logger.GetLogger().Info(context.Background(), "Session cleanup job disabled by configuration",
 				slog.String("component", "services"))
 		}
 
@@ -37,7 +38,7 @@ func NewServices(repos *repositories.Repositories, cfg *config.ServerConfig) *Se
 		//     jobManager.Register(jobs.NewMatchCleaner(repos.MatchRepo, cfg.MatchCleanupInterval))
 		// }
 	} else {
-		logger.GetLogger().Info(nil, "All background jobs disabled by configuration",
+		logger.GetLogger().Info(context.Background(), "All background jobs disabled by configuration",
 			slog.String("component", "services"))
 	}
 

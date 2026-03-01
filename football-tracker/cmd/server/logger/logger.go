@@ -47,17 +47,20 @@ func convertToSlogLevel(level string) slog.Leveler {
 func enrichArgs(ctx context.Context, args []any) []any {
 	enriched := make([]any, 0, len(args)+6)
 
-	// Add traceID and spanID if present in context using otel package keys
-	if traceID, ok := ctx.Value(otel.TraceIDKey).(string); ok && traceID != "" {
-		enriched = append(enriched, slog.String("trace_id", traceID))
-	}
-	if spanID, ok := ctx.Value(otel.SpanIDKey).(string); ok && spanID != "" {
-		enriched = append(enriched, slog.String("span_id", spanID))
-	}
+	// Skip enrichment if context is nil
+	if ctx != nil {
+		// Add traceID and spanID if present in context using otel package keys
+		if traceID, ok := ctx.Value(otel.TraceIDKey).(string); ok && traceID != "" {
+			enriched = append(enriched, slog.String("trace_id", traceID))
+		}
+		if spanID, ok := ctx.Value(otel.SpanIDKey).(string); ok && spanID != "" {
+			enriched = append(enriched, slog.String("span_id", spanID))
+		}
 
-	// Add userID if present in context (from auth middleware)
-	if userID, ok := ctx.Value(otel.UserIDKey).(int); ok && userID > 0 {
-		enriched = append(enriched, slog.Int("user_id", userID))
+		// Add userID if present in context (from auth middleware)
+		if userID, ok := ctx.Value(otel.UserIDKey).(int); ok && userID > 0 {
+			enriched = append(enriched, slog.Int("user_id", userID))
+		}
 	}
 
 	// Add original arguments
