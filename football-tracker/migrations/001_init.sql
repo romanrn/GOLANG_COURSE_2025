@@ -442,9 +442,7 @@ END $$;
 -- Create demo users with roles
 -- Password hashes generated with bcrypt cost 10
 -- Demo password: demo123  -> hash: $2a$10$ttM0O473DQy0.6hqtXrMnu8dUpBBqwi7elJZHdixkoLCYlz1M0Wfm
--- Admin password: admin123 -> hash: $2a$10$Mp75WPVf60y3X2u0gN8BdOtPo.XpUxQtMsV0RGYX7hzXIU50Agxzi
 INSERT INTO users (username, email, password, role) VALUES
-    ('demo', 'demo@football.com', '$2a$10$ttM0O473DQy0.6hqtXrMnu8dUpBBqwi7elJZHdixkoLCYlz1M0Wfm', 'US'),
-    ('admin', 'admin@football.com', '$2a$10$Mp75WPVf60y3X2u0gN8BdOtPo.XpUxQtMsV0RGYX7hzXIU50Agxzi', 'AD')
+    ('demo', 'demo@football.com', '$2a$10$ttM0O473DQy0.6hqtXrMnu8dUpBBqwi7elJZHdixkoLCYlz1M0Wfm', 'US')
 ON CONFLICT DO NOTHING;
 -- Roles: US=user (regular user), AD=admin (can edit all data)
