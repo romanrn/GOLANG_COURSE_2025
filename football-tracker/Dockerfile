@@ -5,10 +5,11 @@ ENV GOTOOLCHAIN=auto
 ENV CGO_ENABLED=0
 ENV GOOS=linux
 ENV GOARCH=amd64
+ENV GOPATH=/go
 
 WORKDIR /app
 
-# Copy dependency files
+# Copy dependency files first
 COPY go.mod go.sum ./
 
 # Download dependencies
@@ -17,6 +18,9 @@ RUN go mod download
 # Copy source code
 COPY cmd ./cmd
 COPY internal ./internal
+
+# Copy pre-generated Swagger docs (generate locally before building)
+COPY docs ./docs
 
 # Build the server with optimizations
 RUN go build -ldflags="-w -s" -o server ./cmd/main.go
@@ -33,11 +37,12 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 # Set working directory
 WORKDIR /home/appuser
 
-# Copy binary from builder
+# Copy binary and docs from builder
 COPY --from=builder /app/server ./server
+COPY --from=builder /app/docs ./docs
 
 # Set permissions
-RUN chmod +x ./server && chown appuser:appgroup ./server
+RUN chmod +x ./server && chown -R appuser:appgroup ./
 
 USER appuser
 

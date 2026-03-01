@@ -14,6 +14,25 @@ import (
 	"log/slog"
 )
 
+// @title           Football Tracker API
+// @version         1.0
+// @description     REST API for tracking football championships, matches, and user predictions. Supports multi-championship tracking with user prediction system, rating, and leaderboard functionality.
+
+// @contact.name   Football Tracker API Support
+// @contact.email  support@football-tracker.com
+
+// @license.name  Proprietary
+// @license.url   #
+
+// @host      localhost
+// @BasePath  /
+// @schemes   https http
+
+// @securityDefinitions.apikey CookieAuth
+// @in cookie
+// @name session_token
+// @description Session token obtained from /api/v1/auth/login endpoint. After successful login, this cookie is automatically set.
+
 func main() {
 	ctx := context.Background()
 

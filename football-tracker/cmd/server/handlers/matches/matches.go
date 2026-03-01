@@ -19,6 +19,16 @@ func NewHandler(service services.MatchService) *Handler {
 	}
 }
 
+// GetByChampionshipId retrieves matches by championship ID
+// @Summary      Get matches by championship
+// @Description  Retrieves all matches for a specific championship
+// @Tags         Matches
+// @Produce      json
+// @Param        championshipId query int true "Championship ID"
+// @Success      200 {object} map[string]interface{} "List of matches"
+// @Failure      400 {object} map[string]string "Missing or invalid championshipId"
+// @Failure      500 {object} map[string]string "Internal server error"
+// @Router       /api/v1/matches [get]
 func (h *Handler) GetByChampionshipId(c *fiber.Ctx) error {
 	ctx := c.UserContext()
 
@@ -83,6 +93,16 @@ func (h *Handler) GetByChampionshipId(c *fiber.Ctx) error {
 	})
 }
 
+// GetById retrieves a match by ID
+// @Summary      Get match by ID
+// @Description  Retrieves detailed information about a specific match
+// @Tags         Matches
+// @Produce      json
+// @Param        id path int true "Match ID"
+// @Success      200 {object} map[string]interface{} "Match details"
+// @Failure      400 {object} map[string]string "Invalid match ID"
+// @Failure      500 {object} map[string]string "Internal server error"
+// @Router       /api/v1/matches/{id} [get]
 func (h *Handler) GetById(c *fiber.Ctx) error {
 	ctx := c.UserContext()
 

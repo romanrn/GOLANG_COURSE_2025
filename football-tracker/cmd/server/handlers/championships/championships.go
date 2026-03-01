@@ -19,6 +19,14 @@ func NewHandler(service services.ChampionshipService) *Handler {
 	}
 }
 
+// GetAll retrieves all championships
+// @Summary      Get all championships
+// @Description  Retrieves a list of all available football championships (FIFA World Cup, UEFA Euro, etc.)
+// @Tags         Championships
+// @Produce      json
+// @Success      200 {object} map[string]interface{} "List of championships"
+// @Failure      500 {object} map[string]string "Internal server error"
+// @Router       /api/v1/championships [get]
 func (h *Handler) GetAll(c *fiber.Ctx) error {
 	ctx := c.UserContext()
 
@@ -55,6 +63,16 @@ func (h *Handler) GetAll(c *fiber.Ctx) error {
 	})
 }
 
+// GetById retrieves a championship by ID
+// @Summary      Get championship by ID
+// @Description  Retrieves detailed information about a specific championship
+// @Tags         Championships
+// @Produce      json
+// @Param        id path int true "Championship ID"
+// @Success      200 {object} map[string]interface{} "Championship details"
+// @Failure      400 {object} map[string]string "Invalid championship ID"
+// @Failure      500 {object} map[string]string "Internal server error"
+// @Router       /api/v1/championships/{id} [get]
 func (h *Handler) GetById(c *fiber.Ctx) error {
 	ctx := c.UserContext()
 

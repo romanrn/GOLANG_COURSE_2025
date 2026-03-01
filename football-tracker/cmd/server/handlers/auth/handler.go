@@ -26,7 +26,17 @@ func NewHandler(authService services.AuthService, cfg *config.ServerConfig) *Han
 }
 
 // Register handles user registration
-// POST /api/v1/auth/register
+// @Summary      Register a new user
+// @Description  Creates a new user account with username, email, and password
+// @Tags         Authentication
+// @Accept       json
+// @Produce      json
+// @Param        request body dto.RegisterRequest true "Registration data"
+// @Success      201 {object} dto.RegisterResponse "User registered successfully"
+// @Failure      400 {object} map[string]string "Invalid request body or validation error"
+// @Failure      409 {object} map[string]string "User already exists"
+// @Failure      500 {object} map[string]string "Internal server error"
+// @Router       /api/v1/auth/register [post]
 func (h *Handler) Register(c *fiber.Ctx) error {
 	ctx := c.Context()
 
@@ -129,7 +139,17 @@ func (h *Handler) Register(c *fiber.Ctx) error {
 }
 
 // Login handles user login
-// POST /api/v1/auth/login
+// @Summary      Login with credentials
+// @Description  Authenticates user and returns session token in cookie
+// @Tags         Authentication
+// @Accept       json
+// @Produce      json
+// @Param        request body dto.LoginRequest true "Login credentials (email or username)"
+// @Success      200 {object} dto.LoginResponse "Login successful, session token set in cookie"
+// @Failure      400 {object} map[string]string "Invalid request body"
+// @Failure      401 {object} map[string]string "Invalid credentials"
+// @Failure      500 {object} map[string]string "Internal server error"
+// @Router       /api/v1/auth/login [post]
 func (h *Handler) Login(c *fiber.Ctx) error {
 	ctx := c.UserContext()
 
@@ -220,8 +240,15 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 }
 
 // Logout handles user logout
-// POST /api/v1/auth/logout
-// Requires authentication (Auth middleware must be applied)
+// @Summary      Logout user
+// @Description  Invalidates user session and clears session cookie
+// @Tags         Authentication
+// @Produce      json
+// @Success      200 {object} map[string]string "Logout successful"
+// @Failure      401 {object} map[string]string "Authentication required"
+// @Failure      500 {object} map[string]string "Internal server error"
+// @Security     CookieAuth
+// @Router       /api/v1/auth/logout [post]
 func (h *Handler) Logout(c *fiber.Ctx) error {
 	ctx := c.UserContext()
 

@@ -20,6 +20,17 @@ func NewHandler(predictionService services.PredictionService) *Handler {
 }
 
 // CreatePrediction creates a new prediction for a match (POST /api/v1/predictions)
+// @Summary      Create a new prediction
+// @Description  Creates a prediction for a specific match. User must be authenticated. Only one prediction per match is allowed.
+// @Tags         Predictions
+// @Accept       json
+// @Produce      json
+// @Param        prediction body dto.CreatePredictionRequest true "Prediction data"
+// @Success      201 {object} dto.PredictionResponse "Prediction created successfully"
+// @Failure      400 {object} map[string]string "Invalid request body or business logic error"
+// @Failure      401 {object} map[string]string "User not authenticated"
+// @Security     CookieAuth
+// @Router       /api/v1/predictions [post]
 func (h *Handler) CreatePrediction(c *fiber.Ctx) error {
 	ctx := c.UserContext()
 

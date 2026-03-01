@@ -13,7 +13,10 @@ import (
 	"syscall"
 	"time"
 
+	_ "football-tracker/docs" // Import generated Swagger docs
+
 	"github.com/gofiber/fiber/v2"
+	fiberSwagger "github.com/swaggo/fiber-swagger"
 )
 
 type Server struct {
@@ -139,8 +142,12 @@ func (s *Server) Run(ctx context.Context) {
 
 func (s *Server) RegisterRoutes(h *handlers.Handlers) {
 
+	// Health check endpoints (before Swagger to avoid conflicts)
 	s.app.Get("/healthCheck", h.Health.Check)
 	s.app.Get("/ready", h.Health.Ready)
+
+	// Swagger documentation endpoint
+	s.app.Get("/swagger/*", fiberSwagger.WrapHandler)
 
 	api := s.app.Group("/api/v1")
 
