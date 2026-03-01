@@ -39,6 +39,9 @@ services:
     # Remove external port exposure - only accessible via nginx
     expose:
       - "8080"
+    # Graceful shutdown configuration
+    stop_signal: SIGTERM
+    stop_grace_period: ${SHUTDOWN_TIMEOUT:-30s}  # Use env var, default to 30s
     depends_on:
       postgres:
         condition: service_healthy

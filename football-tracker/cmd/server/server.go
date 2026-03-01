@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"sync/atomic"
 	"syscall"
 	"time"
 
@@ -19,6 +20,7 @@ type Server struct {
 	app             *fiber.App
 	config          *config.ServerConfig
 	metricsProvider *telemetry.MetricsProvider
+	isShuttingDown  atomic.Bool // Track shutdown state for readiness probe
 }
 
 func NewServer(config *config.ServerConfig) *Server {
@@ -39,6 +41,11 @@ func NewServer(config *config.ServerConfig) *Server {
 // SetMetricsProvider sets the metrics provider for the server
 func (s *Server) SetMetricsProvider(provider *telemetry.MetricsProvider) {
 	s.metricsProvider = provider
+}
+
+// GetShutdownFlag returns pointer to shutdown flag for health checks
+func (s *Server) GetShutdownFlag() *atomic.Bool {
+	return &s.isShuttingDown
 }
 
 func (s *Server) Start() error {
@@ -82,9 +89,13 @@ func (s *Server) Run(ctx context.Context) {
 		os.Exit(1)
 	case <-quit:
 		logger.GetLogger().Info(ctx, "Shutting down server...")
+		s.isShuttingDown.Store(true) // Mark server as not ready
+		logger.GetLogger().Info(ctx, "Readiness flag set to false - /ready will return 503")
 
 	case <-ctx.Done():
 		logger.GetLogger().Info(ctx, "Context cancelled, shutting down")
+		s.isShuttingDown.Store(true) // Mark server as not ready
+		logger.GetLogger().Info(ctx, "Readiness flag set to false - /ready will return 503")
 	}
 
 	// Track shutdown duration for metrics
@@ -129,6 +140,7 @@ func (s *Server) Run(ctx context.Context) {
 func (s *Server) RegisterRoutes(h *handlers.Handlers) {
 
 	s.app.Get("/healthCheck", h.Health.Check)
+	s.app.Get("/ready", h.Health.Ready)
 
 	api := s.app.Group("/api/v1")
 
@@ -163,18 +175,4 @@ func (s *Server) RegisterRoutes(h *handlers.Handlers) {
 	// Matches routes (public, but logs user_id if authenticated)
 	public.Get("/matches", h.Matches.GetByChampionshipId)
 	public.Get("/matches/:id", h.Matches.GetById)
-
-	// Example: Protected routes requiring authentication
-	// protected := api.Group("")
-	// protected.Use(h.Mdlwr.Auth.Handle)
-	// protected.Get("/profile", h.User.GetProfile)
-	// protected.Put("/profile", h.User.UpdateProfile)
-
-	// Example: Admin-only routes
-	// admin := api.Group("/admin")
-	// admin.Use(h.Mdlwr.Auth.Handle)
-	// admin.Use(h.Mdlwr.Auth.RequireRole(models.UserRoleAdmin))
-	// admin.Post("/championships", h.ChampionShips.Create)
-	// admin.Put("/championships/:id", h.ChampionShips.Update)
-	// admin.Delete("/championships/:id", h.ChampionShips.Delete)
 }

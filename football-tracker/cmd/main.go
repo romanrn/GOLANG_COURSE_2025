@@ -90,15 +90,19 @@ func main() {
 	repos := repositories.NewRepositories(clnts.Db)
 	srvs := services.NewServices(repos, cfg)
 	mdlwrs := middlewares.NewMiddlewares(srvs, cfg)
-	hdlrs := handlers.NewHandlers(cfg, srvs, mdlwrs)
+
+	// Create server first to get shutdown flag
+	srv := server.NewServer(cfg)
+	srv.SetMetricsProvider(metricsProvider) // Pass metrics for shutdown tracking
+
+	// Create handlers with shutdown flag for readiness probe
+	hdlrs := handlers.NewHandlers(cfg, srvs, mdlwrs, srv.GetShutdownFlag())
 
 	// Start background jobs (from Services container)
 	srvs.JobManager.StartAll(ctx)
 	defer srvs.JobManager.StopAll(ctx)
 
-	// Create and run server with metrics
-	srv := server.NewServer(cfg)
-	srv.SetMetricsProvider(metricsProvider) // Pass metrics for shutdown tracking
+	// Register routes and run server
 	srv.RegisterRoutes(hdlrs)
 	srv.Run(ctx)
 }

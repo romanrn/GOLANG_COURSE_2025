@@ -9,6 +9,7 @@ import (
 	"football-tracker/cmd/server/handlers/teams"
 	"football-tracker/cmd/server/middlewares"
 	"football-tracker/internal/services"
+	"sync/atomic"
 )
 
 type Handlers struct {
@@ -20,9 +21,9 @@ type Handlers struct {
 	Auth          *auth.Handler
 }
 
-func NewHandlers(cfg *config.ServerConfig, svcs *services.Services, mdlwr *middlewares.Middlewares) *Handlers {
+func NewHandlers(cfg *config.ServerConfig, svcs *services.Services, mdlwr *middlewares.Middlewares, isShuttingDown *atomic.Bool) *Handlers {
 	return &Handlers{
-		Health:        health.NewHandler(cfg),
+		Health:        health.NewHandler(cfg, isShuttingDown),
 		Mdlwr:         mdlwr,
 		ChampionShips: championships.NewHandler(svcs.Championship),
 		Teams:         teams.NewHandler(svcs.Team),
