@@ -5,17 +5,20 @@ import (
 	"football-tracker/cmd/server/config"
 	"football-tracker/cmd/server/handlers"
 	"football-tracker/cmd/server/logger"
+	"football-tracker/internal/telemetry"
 	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 type Server struct {
-	app    *fiber.App
-	config *config.ServerConfig
+	app             *fiber.App
+	config          *config.ServerConfig
+	metricsProvider *telemetry.MetricsProvider
 }
 
 func NewServer(config *config.ServerConfig) *Server {
@@ -31,6 +34,11 @@ func NewServer(config *config.ServerConfig) *Server {
 	}
 
 	return server
+}
+
+// SetMetricsProvider sets the metrics provider for the server
+func (s *Server) SetMetricsProvider(provider *telemetry.MetricsProvider) {
+	s.metricsProvider = provider
 }
 
 func (s *Server) Start() error {
@@ -79,15 +87,39 @@ func (s *Server) Run(ctx context.Context) {
 		logger.GetLogger().Info(ctx, "Context cancelled, shutting down")
 	}
 
+	// Track shutdown duration for metrics
+	shutdownStart := time.Now()
+
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), s.config.ShutdownTimeout)
 	defer cancel()
 
-	if err := s.Shutdown(shutdownCtx); err != nil {
+	shutdownErr := s.Shutdown(shutdownCtx)
+	shutdownDuration := time.Since(shutdownStart)
+
+	if shutdownErr != nil {
+		// Record failed shutdown metrics
+		if s.metricsProvider != nil {
+			s.metricsProvider.RecordShutdown(ctx, shutdownDuration, false)
+		}
 
 		logger.GetLogger().Error(
 			ctx,
 			"Server forced to shutdown",
-			slog.String("error", err.Error()),
+			slog.String("error", shutdownErr.Error()),
+			slog.Duration("shutdown_duration", shutdownDuration),
+		)
+	} else {
+		// Record successful shutdown metrics
+		if s.metricsProvider != nil {
+			s.metricsProvider.RecordShutdown(ctx, shutdownDuration, true)
+		}
+
+		// Log successful shutdown with duration metric
+		logger.GetLogger().Info(
+			context.Background(),
+			"Server graceful shutdown completed",
+			slog.Duration("shutdown_duration", shutdownDuration),
+			slog.Duration("shutdown_timeout", s.config.ShutdownTimeout),
 		)
 	}
 

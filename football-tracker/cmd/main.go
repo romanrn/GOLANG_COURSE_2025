@@ -49,6 +49,30 @@ func main() {
 		}()
 	}
 
+	// Initialize OpenTelemetry metrics
+	metricsProvider, shutdownMetrics, err := telemetry.InitMetrics(ctx, telemetry.Config{
+		ServiceName: cfg.OtelServiceName,
+		Endpoint:    cfg.OtelEndpoint,
+		Enabled:     cfg.OtelEnabled,
+	})
+	if err != nil {
+		logger.GetLogger().Error(ctx, "Failed to initialize metrics", slog.String("error", err.Error()))
+		// Continue without metrics
+	} else {
+		logger.GetLogger().Info(ctx, "OpenTelemetry metrics initialized",
+			slog.String("endpoint", cfg.OtelEndpoint),
+			slog.String("service", cfg.OtelServiceName))
+
+		// Ensure metrics cleanup on exit
+		defer func() {
+			if err := shutdownMetrics(ctx); err != nil {
+				logger.GetLogger().Error(ctx, "Failed to shutdown metrics", slog.String("error", err.Error()))
+			} else {
+				logger.GetLogger().Info(ctx, "Metrics shutdown successfully")
+			}
+		}()
+	}
+
 	clnts, err := clients.NewClients(ctx, cfg)
 	if err != nil {
 		logger.GetLogger().Fatal(ctx, err.Error())
@@ -72,8 +96,9 @@ func main() {
 	srvs.JobManager.StartAll(ctx)
 	defer srvs.JobManager.StopAll(ctx)
 
-	// Create and run server
+	// Create and run server with metrics
 	srv := server.NewServer(cfg)
+	srv.SetMetricsProvider(metricsProvider) // Pass metrics for shutdown tracking
 	srv.RegisterRoutes(hdlrs)
 	srv.Run(ctx)
 }
