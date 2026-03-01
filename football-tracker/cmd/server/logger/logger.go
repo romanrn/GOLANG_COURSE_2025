@@ -3,7 +3,7 @@ package logger
 import (
 	"context"
 	"football-tracker/cmd/server/config"
-	"football-tracker/cmd/server/middlewares/trace"
+	"football-tracker/cmd/server/middlewares/otel"
 	"log/slog"
 	"os"
 )
@@ -47,16 +47,16 @@ func convertToSlogLevel(level string) slog.Leveler {
 func enrichArgs(ctx context.Context, args []any) []any {
 	enriched := make([]any, 0, len(args)+6)
 
-	// Add traceID and spanID if present in context using trace package keys
-	if traceID, ok := ctx.Value(trace.TraceIDKey).(string); ok && traceID != "" {
+	// Add traceID and spanID if present in context using otel package keys
+	if traceID, ok := ctx.Value(otel.TraceIDKey).(string); ok && traceID != "" {
 		enriched = append(enriched, slog.String("trace_id", traceID))
 	}
-	if spanID, ok := ctx.Value(trace.SpanIDKey).(string); ok && spanID != "" {
+	if spanID, ok := ctx.Value(otel.SpanIDKey).(string); ok && spanID != "" {
 		enriched = append(enriched, slog.String("span_id", spanID))
 	}
 
 	// Add userID if present in context (from auth middleware)
-	if userID, ok := ctx.Value(trace.UserIDKey).(int); ok && userID > 0 {
+	if userID, ok := ctx.Value(otel.UserIDKey).(int); ok && userID > 0 {
 		enriched = append(enriched, slog.Int("user_id", userID))
 	}
 
@@ -86,52 +86,3 @@ func (s *Logger) Fatal(ctx context.Context, msg string, args ...any) {
 	s.log.ErrorContext(ctx, msg, enrichArgs(ctx, args)...)
 	os.Exit(1)
 }
-
-/*
-func WithAttrs(ctx context.Context, args ...slog.Attr) context.Context {
-	ctx = context.WithValue(ctx, CtxLoggerKey{}, MergeAttrs(getAttrs(ctx), args))
-	return ctx
-}
-
-
-func MergeAttrs(left []slog.Attr, right []slog.Attr) []slog.Attr {
-	return append(left, right...)
-}
-
-func getAttrs(ctx context.Context) []slog.Attr {
-	attrs := ctx.Value(CtxLoggerKey{})
-	if attrs == nil {
-		return []slog.Attr{}
-	}
-	result, ok := attrs.([]slog.Attr)
-	if !ok {
-		return []slog.Attr{}
-	}
-	return result
-}
-
-func convertAttrsToAny(a []slog.Attr) []any {
-	result := make([]any, len(a))
-	for i, v := range a {
-		result[i] = v
-	}
-	return result
-}
-
-func (s *Logger) Info(ctx context.Context, msg string, args ...slog.Attr) {
-	s.log.InfoContext(ctx, msg, convertAttrsToAny(MergeAttrs(getAttrs(ctx), args))...)
-}
-
-func (s *Logger) Error(ctx context.Context, err error, args ...slog.Attr) {
-	s.log.ErrorContext(ctx, err.Error(), convertAttrsToAny(MergeAttrs(getAttrs(ctx), args))...)
-}
-
-func (s *Logger) Panic(ctx context.Context, err error, args ...slog.Attr) {
-	s.log.ErrorContext(ctx, err.Error(), args)
-	panic(err)
-}
-
-func (s *Logger) Fatal(ctx context.Context, err error, args ...slog.Attr) {
-	s.log.ErrorContext(ctx, err.Error(), args)
-	os.Exit(1)
-}*/

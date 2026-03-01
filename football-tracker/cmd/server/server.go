@@ -101,9 +101,10 @@ func (s *Server) RegisterRoutes(h *handlers.Handlers) {
 	api := s.app.Group("/api/v1")
 
 	// Apply global middlewares to all routes
-	api.Use(h.Mdlwr.Trace.Handle)
-	api.Use(h.Mdlwr.ErrorHandler.Handle)
-	api.Use(h.Mdlwr.Logger.Handle)
+	// IMPORTANT ORDER: OTEL FIRST (generates trace_id and creates span)
+	api.Use(h.Mdlwr.Otel.Handle)         // 1. Create span (auto-generates trace_id) and send to Tempo
+	api.Use(h.Mdlwr.ErrorHandler.Handle) // 2. Error handling
+	api.Use(h.Mdlwr.Logger.Handle)       // 3. Request/response logging (uses trace_id from context)
 
 	// Auth routes (public endpoints - no authentication required)
 	auth := api.Group("/auth")

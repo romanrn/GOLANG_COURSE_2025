@@ -10,6 +10,7 @@ import (
 	"football-tracker/internal/clients"
 	"football-tracker/internal/out/database"
 	"football-tracker/internal/services"
+	"football-tracker/internal/telemetry"
 	"log/slog"
 )
 
@@ -23,6 +24,30 @@ func main() {
 	}
 
 	logger.InitLogger(cfg)
+
+	// Initialize OpenTelemetry tracing
+	shutdownTracer, err := telemetry.InitTracer(ctx, telemetry.Config{
+		ServiceName: cfg.OtelServiceName,
+		Endpoint:    cfg.OtelEndpoint,
+		Enabled:     cfg.OtelEnabled,
+	})
+	if err != nil {
+		logger.GetLogger().Error(ctx, "Failed to initialize tracer", slog.String("error", err.Error()))
+		// Continue without tracing - application will use fallback trace IDs
+	} else {
+		logger.GetLogger().Info(ctx, "OpenTelemetry tracer initialized",
+			slog.String("endpoint", cfg.OtelEndpoint),
+			slog.String("service", cfg.OtelServiceName))
+
+		// Ensure tracer cleanup on exit
+		defer func() {
+			if err := shutdownTracer(ctx); err != nil {
+				logger.GetLogger().Error(ctx, "Failed to shutdown tracer", slog.String("error", err.Error()))
+			} else {
+				logger.GetLogger().Info(ctx, "Tracer shutdown successfully")
+			}
+		}()
+	}
 
 	clnts, err := clients.NewClients(ctx, cfg)
 	if err != nil {

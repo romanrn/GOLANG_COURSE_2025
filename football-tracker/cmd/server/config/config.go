@@ -31,6 +31,11 @@ type ServerConfig struct {
 	SessionTokenTTL     time.Duration `env:"SESSION_TOKEN_TTL" envDefault:"24h"`
 	SessionCookieSecure bool          `env:"SESSION_COOKIE_SECURE" envDefault:"false"`
 	SessionCookieDomain string        `env:"SESSION_COOKIE_DOMAIN" envDefault:""`
+
+	// OpenTelemetry Configuration
+	OtelEnabled     bool   `env:"OTEL_ENABLED" envDefault:"true"`
+	OtelEndpoint    string `env:"OTEL_EXPORTER_OTLP_ENDPOINT" envDefault:"tempo:4317"`
+	OtelServiceName string `env:"OTEL_SERVICE_NAME" envDefault:"football-tracker"`
 }
 
 func NewConfigFromEnv() (*ServerConfig, error) {
