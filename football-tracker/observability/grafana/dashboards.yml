@@ -1,0 +1,18 @@
+# Grafana Dashboard Provisioning Configuration
+# Dashboard provisioning disabled - no dashboards to provision yet
+# To enable: create dashboards JSON files in ./observability/grafana/dashboards/ directory
+
+apiVersion: 1
+
+providers: []
+  # Example configuration (disabled):
+  # - name: 'Football Tracker Dashboards'
+  #   orgId: 1
+  #   folder: 'Football Tracker'
+  #   type: file
+  #   disableDeletion: false
+  #   updateIntervalSeconds: 30
+  #   allowUiUpdates: true
+  #   options:
+  #     path: /etc/grafana/dashboards
+  #     foldersFromFilesStructure: true

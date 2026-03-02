@@ -1,0 +1,498 @@
+basePath: /
+definitions:
+  football-tracker_internal_models_dto.CreatePredictionRequest:
+    properties:
+      away_score_regular:
+        example: 1
+        minimum: 0
+        type: integer
+      away_score_total:
+        example: 2
+        minimum: 0
+        type: integer
+      home_score_regular:
+        description: Regular time prediction (required for all matches)
+        example: 2
+        minimum: 0
+        type: integer
+      home_score_total:
+        description: Total score prediction (optional, for playoff matches)
+        example: 3
+        minimum: 0
+        type: integer
+      match_id:
+        example: 1
+        minimum: 1
+        type: integer
+      penalty_winner_team_id:
+        description: Penalty shootout winner prediction (optional, for playoff matches)
+        example: 1
+        minimum: 1
+        type: integer
+    required:
+    - away_score_regular
+    - home_score_regular
+    - match_id
+    type: object
+  football-tracker_internal_models_dto.LoginRequest:
+    properties:
+      login:
+        description: Can be username or email
+        example: john.doe@example.com
+        type: string
+      password:
+        example: SecurePass123!
+        type: string
+    required:
+    - login
+    - password
+    type: object
+  football-tracker_internal_models_dto.LoginResponse:
+    properties:
+      token:
+        description: For future JWT implementation
+        example: session_token_abc123
+        type: string
+      user:
+        $ref: '#/definitions/football-tracker_internal_models_dto.UserDTO'
+    type: object
+  football-tracker_internal_models_dto.PredictionResponse:
+    properties:
+      away_score_regular:
+        example: 1
+        type: integer
+      away_score_total:
+        example: 2
+        type: integer
+      created_at:
+        example: "2026-03-01T12:00:00Z"
+        type: string
+      home_score_regular:
+        description: Regular time prediction
+        example: 2
+        type: integer
+      home_score_total:
+        description: Total score prediction (optional)
+        example: 3
+        type: integer
+      id:
+        example: 1
+        type: integer
+      match_id:
+        example: 1
+        type: integer
+      penalty_winner_team_id:
+        description: Penalty shootout winner prediction (optional)
+        example: 1
+        type: integer
+      points:
+        example: 3
+        type: integer
+      updated_at:
+        example: "2026-03-01T12:00:00Z"
+        type: string
+      user_id:
+        example: 2
+        type: integer
+    type: object
+  football-tracker_internal_models_dto.RegisterRequest:
+    properties:
+      email:
+        example: john.doe@example.com
+        type: string
+      password:
+        example: SecurePass123!
+        minLength: 6
+        type: string
+      username:
+        example: john_doe
+        maxLength: 50
+        minLength: 3
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  football-tracker_internal_models_dto.RegisterResponse:
+    properties:
+      token:
+        description: For future JWT implementation
+        example: session_token_abc123
+        type: string
+      user:
+        $ref: '#/definitions/football-tracker_internal_models_dto.UserDTO'
+    type: object
+  football-tracker_internal_models_dto.UserDTO:
+    properties:
+      created_at:
+        example: "2026-03-01T12:00:00Z"
+        type: string
+      email:
+        example: john.doe@example.com
+        type: string
+      id:
+        example: 1
+        type: integer
+      role:
+        example: user
+        type: string
+      updated_at:
+        example: "2026-03-01T12:00:00Z"
+        type: string
+      username:
+        example: john_doe
+        type: string
+    type: object
+host: localhost
+info:
+  contact:
+    email: support@football-tracker.com
+    name: Football Tracker API Support
+  description: REST API for tracking football championships, matches, and user predictions.
+    Supports multi-championship tracking with user prediction system, rating, and
+    leaderboard functionality.
+  license:
+    name: Proprietary
+    url: '#'
+  title: Football Tracker API
+  version: "1.0"
+paths:
+  /api/v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates user and returns session token in cookie
+      parameters:
+      - description: Login credentials (email or username)
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/football-tracker_internal_models_dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful, session token set in cookie
+          schema:
+            $ref: '#/definitions/football-tracker_internal_models_dto.LoginResponse'
+        "400":
+          description: Invalid request body
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Invalid credentials
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login with credentials
+      tags:
+      - Authentication
+  /api/v1/auth/logout:
+    post:
+      description: Invalidates user session and clears session cookie
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logout successful
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Authentication required
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - CookieAuth: []
+      summary: Logout user
+      tags:
+      - Authentication
+  /api/v1/auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new user account with username, email, and password
+      parameters:
+      - description: Registration data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/football-tracker_internal_models_dto.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User registered successfully
+          schema:
+            $ref: '#/definitions/football-tracker_internal_models_dto.RegisterResponse'
+        "400":
+          description: Invalid request body or validation error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: User already exists
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new user
+      tags:
+      - Authentication
+  /api/v1/championships:
+    get:
+      description: Retrieves a list of all available football championships (FIFA
+        World Cup, UEFA Euro, etc.)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of championships
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all championships
+      tags:
+      - Championships
+  /api/v1/championships/{id}:
+    get:
+      description: Retrieves detailed information about a specific championship
+      parameters:
+      - description: Championship ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Championship details
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid championship ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get championship by ID
+      tags:
+      - Championships
+  /api/v1/matches:
+    get:
+      description: Retrieves all matches for a specific championship
+      parameters:
+      - description: Championship ID
+        in: query
+        name: championshipId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of matches
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Missing or invalid championshipId
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get matches by championship
+      tags:
+      - Matches
+  /api/v1/matches/{id}:
+    get:
+      description: Retrieves detailed information about a specific match
+      parameters:
+      - description: Match ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Match details
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid match ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get match by ID
+      tags:
+      - Matches
+  /api/v1/predictions:
+    post:
+      consumes:
+      - application/json
+      description: Creates a prediction for a specific match. User must be authenticated.
+        Only one prediction per match is allowed.
+      parameters:
+      - description: Prediction data
+        in: body
+        name: prediction
+        required: true
+        schema:
+          $ref: '#/definitions/football-tracker_internal_models_dto.CreatePredictionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Prediction created successfully
+          schema:
+            $ref: '#/definitions/football-tracker_internal_models_dto.PredictionResponse'
+        "400":
+          description: Invalid request body or business logic error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: User not authenticated
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - CookieAuth: []
+      summary: Create a new prediction
+      tags:
+      - Predictions
+  /api/v1/teams:
+    get:
+      description: Retrieves all teams participating in a specific championship
+      parameters:
+      - description: Championship ID
+        in: query
+        name: championshipId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of teams
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Missing or invalid championshipId
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get teams by championship
+      tags:
+      - Teams
+  /api/v1/teams/{id}:
+    get:
+      description: Retrieves detailed information about a specific team
+      parameters:
+      - description: Team ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Team details
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid team ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get team by ID
+      tags:
+      - Teams
+schemes:
+- https
+- http
+securityDefinitions:
+  CookieAuth:
+    description: Session token obtained from /api/v1/auth/login endpoint. After successful
+      login, this cookie is automatically set.
+    in: cookie
+    name: session_token
+    type: apiKey
+swagger: "2.0"
