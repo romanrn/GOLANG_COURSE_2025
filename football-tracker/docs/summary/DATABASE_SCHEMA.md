@@ -39,112 +39,128 @@ The Football Tracker database schema is designed to support **multi-championship
 
 ### High-Level ERD
 
+
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                        CHAMPIONSHIPS DOMAIN                                  │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                         FOOTBALL TRACKER DATABASE SCHEMA                         │
+└─────────────────────────────────────────────────────────────────────────────────┘
 
-                    ┌──────────────────────────┐
-                    │   championships          │
-                    ├──────────────────────────┤
-                    │ PK id                    │
-                    │    name                  │
-                    │    year                  │
-                    │    start_date            │
-                    │    end_date              │
-                    │    logo_url              │
-                    │    created_at            │
-                    │    updated_at            │
-                    └──────────┬───────────────┘
-                               │
-                    ┌──────────┼───────────────┬──────────────┬─────────────┐
-                    │          │               │              │             │
-                    ▼          ▼               ▼              ▼             ▼
-         ┌─────────────┐ ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐
-         │championship_│ │championship│ │championship│ │  groups  │  │ matches  │
-         │   hosts     │ │   cities   │ │   teams    │ ├──────────┤ ├──────────┤
-         ├─────────────┤ ├──────────┤  ├──────────┤  │ PK id    │  │ PK id    │
-         │PK,FK champ_id│ │PK,FK champ│ │PK,FK champ│ │    name  │  │ FK champ │
-         │PK,FK host_id│ │PK,FK city │  │PK,FK team │  │ FK champ │  │ FK group │
-         └──────┬──────┘ └─────┬────┘  └─────┬────┘  └────┬─────┘  │ FK home  │
-                │              │              │            │         │ FK away  │
-                ▼              ▼              ▼            ▼         │ FK city  │
-       ┌──────────────┐ ┌──────────┐  ┌──────────┐ ┌──────────┐   │ date     │
-       │host_countries│ │  cities  │  │  teams   │ │team_groups│   │ scores   │
-       ├──────────────┤ ├──────────┤  ├──────────┤ ├──────────┤   │ status   │
-       │ PK id        │ │ PK id    │  │ PK id    │ │PK,FK team│   │ stage    │
-       │ UK code      │ │    name  │  │    name  │ │PK,FK champ│  └────┬─────┘
-       │    name      │ │    code  │  │    code  │ │   FK group│       │
-       │    flag_url  │ │    stadium│ │    name  │ └──────────┘       │
-       └──────────────┘ │    zone  │  │    flag  │                    │
-                        └──────────┘  └────┬─────┘                    │
-                                           │                           │
-                                           └───────────────────────────┘
+┌──────────────────────┐         ┌──────────────────────┐
+│   CHAMPIONSHIPS      │         │   HOST_COUNTRIES     │
+├──────────────────────┤         ├──────────────────────┤
+│ PK id                │         │ PK id                │
+│    name              │         │    name              │
+│    year              │         │ UK code (ISO 3166)   │
+│    start_date        │         │    flag_url          │
+│    end_date          │         │    created_at        │
+│    logo_url          │         └──────────────────────┘
+│    created_at        │                    │
+│    updated_at        │                    │
+└──────────────────────┘                    │
+         │                                  │
+         │                    ┌─────────────▼─────────────┐
+         │                    │  CHAMPIONSHIP_HOSTS       │
+         │                    ├───────────────────────────┤
+         └───────────────────►│ PK,FK championship_id    │
+                              │ PK,FK host_country_id    │
+                              └───────────────────────────┘
 
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                        USERS & PREDICTIONS DOMAIN                           │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────┐         ┌──────────────────────┐
+│       CITIES         │         │   CHAMPIONSHIP_      │
+├──────────────────────┤         │       CITIES         │
+│ PK id                │         ├──────────────────────┤
+│    name              │◄────────┤ PK,FK championship_id│
+│    country_code      │         │ PK,FK city_id        │
+│    stadium           │         └──────────────────────┘
+│    timezone          │                    ▲
+│    created_at        │                    │
+└──────────────────────┘                    │
+         │                          ┌───────┘
+         │                          │
+         │              ┌───────────────────────┐
+         │              │   CHAMPIONSHIPS       │
+         │              └───────────────────────┘
+         │
+         ▼
+┌──────────────────────┐
+│      MATCHES         │
+├──────────────────────┤         ┌──────────────────────┐
+│ PK id                │         │       TEAMS          │
+│ FK championship_id   │         ├──────────────────────┤
+│ FK group_id (null)   │         │ PK id                │
+│ FK home_team_id      │◄────────┤    name              │
+│ FK away_team_id      │         │    country_code      │
+│ FK city_id (null)    │         │    country_name      │
+│    match_date        │         │    flag_url          │
+│    home_score (null) │         │    created_at        │
+│    away_score (null) │         │    updated_at        │
+│    status (2 char)   │         └──────────────────────┘
+│    stage (2 char)    │                    │
+│    venue             │                    │
+│    created_at        │         ┌──────────▼───────────┐
+│    updated_at        │         │  CHAMPIONSHIP_TEAMS  │
+└──────────────────────┘         ├──────────────────────┤
+         │                       │ PK,FK championship_id│
+         │                       │ PK,FK team_id        │
+         │                       └──────────────────────┘
+         │
+         │              ┌──────────────────────┐
+         │              │       GROUPS         │
+         │              ├──────────────────────┤
+         └─────────────►│ PK id                │
+                        │    name (A-H)        │
+                        │ FK championship_id   │
+                        └──────────────────────┘
+                                   │
+                                   │
+                        ┌──────────▼───────────┐
+                        │    TEAM_GROUPS       │
+                        ├──────────────────────┤
+                        │ PK,FK team_id        │
+                        │    FK group_id       │
+                        │ PK,FK championship_id│
+                        └──────────────────────┘
 
-                    ┌──────────────────────────┐
-                    │        users             │
-                    ├──────────────────────────┤
-                    │ PK id                    │
-                    │ UK username              │
-                    │ UK email                 │
-                    │    password (bcrypt)     │
-                    │    role (AD/US)          │
-                    │    created_at            │
-                    │    updated_at            │
-                    └──────┬──────────┬────────┘
-                           │          │
-                ┌──────────┤          └──────────────┐
-                │          │                         │
-                ▼          ▼                         ▼
-         ┌──────────┐ ┌──────────┐         ┌─────────────────┐
-         │ sessions │ │predictions│         │championship_user│
-         ├──────────┤ ├──────────┤         │    _ratings     │
-         │ PK id    │ │ PK id    │         ├─────────────────┤
-         │ FK user  │ │ FK user  │         │ PK id           │
-         │ UK token │ │ FK match │         │ UK (user,champ) │
-         │ expires  │ │ UK (user,│         │ FK user         │
-         │ created  │ │    match)│         │ FK championship │
-         └──────────┘ │ home_reg │         │ total_points    │
-                      │ away_reg │         │ total_preds     │
-                      │ home_tot │         │ correct_scores  │
-                      │ away_tot │         │ correct_outcomes│
-                      │ FK penalty│        │ wrong_preds     │
-                      │    _winner│        │ accuracy_%      │
-                      │ points   │         │ avg_points      │
-                      │ created  │         │ rank            │
-                      │ updated  │         └─────────────────┘
-                      └──────────┘                  │
-                                                    │
-                                         ┌──────────▼──────────┐
-                                         │   user_ratings      │
-                                         │   (global stats)    │
-                                         ├─────────────────────┤
-                                         │ PK user_id (FK)     │
-                                         │ total_points        │
-                                         │ total_predictions   │
-                                         │ total_championships │
-                                         │ correct_scores      │
-                                         │ correct_outcomes    │
-                                         │ wrong_predictions   │
-                                         │ accuracy_%          │
-                                         │ avg_points          │
-                                         │ global_rank         │
-                                         └─────────────────────┘
 
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                        RELATIONSHIPS LEGEND                                  │
-└─────────────────────────────────────────────────────────────────────────────┘
-
-PK  = Primary Key
-FK  = Foreign Key
-UK  = Unique Constraint
-─── = One-to-Many relationship
-═══ = Many-to-Many relationship (via junction table)
+┌──────────────────────┐         ┌──────────────────────┐
+│       USERS          │         │    PREDICTIONS       │
+├──────────────────────┤         ├──────────────────────┤
+│ PK id                │────────►│ PK id                │
+│ UK username          │         │ FK user_id           │
+│ UK email             │         │ FK match_id          │
+│    password (bcrypt) │         │ UK (user_id,match_id)│
+│    role (AD/US)      │         │    home_score        │
+│    created_at        │         │    away_score        │
+│    updated_at        │         │    points (null)     │
+└──────────────────────┘         │    created_at        │
+         │                       │    updated_at        │
+         │                       └──────────────────────┘
+         │                                  ▲
+         │                                  │
+         ├──────────────┐                  │
+         │              │         ┌────────┘
+         ▼              ▼         │
+┌──────────────────────┐  ┌──────────────────────┐
+│   USER_RATINGS       │  │ CHAMPIONSHIP_USER_   │
+├──────────────────────┤  │      RATINGS         │
+│ PK,FK user_id        │  ├──────────────────────┤
+│    total_points      │  │ PK id                │
+│    total_predictions │  │ FK user_id           │
+│    total_champ...    │  │ FK championship_id   │
+│    correct_scores    │  │ UK (user,champ)      │
+│    correct_outcomes  │  │    total_points      │
+│    wrong_predictions │  │    total_predictions │
+│    accuracy_%        │  │    correct_scores    │
+│    average_points    │  │    correct_outcomes  │
+│    global_rank       │  │    wrong_predictions │
+│    created_at        │  │    accuracy_%        │
+│    updated_at        │  │    average_points    │
+└──────────────────────┘  │    rank              │
+                          │    created_at        │
+                          │    updated_at        │
+                          └──────────────────────┘
 ```
+
 
 ### Detailed Table Relationships
 
